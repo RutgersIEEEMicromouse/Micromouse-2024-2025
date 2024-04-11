@@ -44,33 +44,3 @@ void motorSetup(){
   pinMode(PWMA, OUTPUT);
   digitalWrite(STBY, HIGH);
 }
-
-void setFowardPWM(int distance){//distance need to be in mm 
-  long old_right = encRight.read();
-  long old_left = encLeft.read();
-  Serial.println(old_right);
-  Serial.println(old_left);
-  double number =  (40 * 3.1415)/360;//distance per full rotation mm/tick
-  Serial.println(number);
-  double new_ticks = distance/number;//tick need
-
-  double newer_right =(double)old_right + new_ticks;
-  double newer_left = (double)old_left  +new_ticks;
-
-  Serial.println(newer_right);
-  Serial.println(newer_left);
-
-  int pwmleft = 39;
-  int pwmright = pwmleft+1;
-  while(encRight.read() <= newer_right && encLeft.read() <= newer_left){
-    
-    
-    setLeftPWM(pwmleft);
-    setRightPWM(pwmright);
-  }
-  
-  printf("Reached destination.");
-
-  setLeftPWM(0);
-  setRightPWM(0);//360 is a full rotation = 125.66 
-}

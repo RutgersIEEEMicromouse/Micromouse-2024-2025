@@ -19,7 +19,6 @@ extern Encoder encRight;
 void setLeftPWM(int PWM);
 void setRightPWM(int PWM);
 void motorSetup();
-void setFowardPWM(int distance);
 
 
 #endif

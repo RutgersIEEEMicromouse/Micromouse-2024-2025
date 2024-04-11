@@ -45,6 +45,7 @@ void turnTo(char direction) {
     double sampleTime = micros();
     double sampleAngle = angle();
     while(abs(newError) > 1.5) {
+        // stall detection
         if(micros() > sampleTime + 1e6){
             if(angle() == sampleAngle) {
                 return;
@@ -63,6 +64,7 @@ void turnTo(char direction) {
         
         // Serial.printf("newerror = %lf    olderr: %lf  der: %lf   \n",newError,oldError,derivative);
         // delay(100);
+        // integral only takes over if proportional is too weak
         if (abs(newError) < 20) {
             integral += 0.5*(newError + oldError)*dt;
             // integral += 1;

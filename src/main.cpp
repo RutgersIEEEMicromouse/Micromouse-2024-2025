@@ -2,6 +2,7 @@
 #include "lib/distance_sensor.h"
 #include "lib/motors.h"
 #include "lib/pidRotate.h"
+#include "lib/pidStraight.h"
 
 
 VL53L1X sensor;
@@ -12,15 +13,10 @@ void setup()
   sensorInit();
   motorSetup();
 
-  
-
-
-
-
 }
 
 void loop()
-{setFowardPWM(130);
+{
 //turnTo('W');
   // Serial.print(sensor.read());
   // if (sensor.timeoutOccurred()) { Serial.print(" TIMEOUT"); }
@@ -49,6 +45,7 @@ void loop()
   delay(1000);
   turnTo('N');
   delay(1000);*/
+  setForwardPWM(160);
   delay(5000);
 
 }
