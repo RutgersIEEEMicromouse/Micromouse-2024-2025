@@ -1,4 +1,4 @@
 #include "imu.h"
 #include "motors.h"
 
-void setForwardPWM(int distance);
+void setForwardPWM(double distance);

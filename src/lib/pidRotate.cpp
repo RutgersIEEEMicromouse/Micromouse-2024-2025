@@ -90,7 +90,7 @@ void turnTo(char direction) {
         oldError = newError;
         newError = targetDirection - angle();
     
-        if(newError < 0) newError += 360;
+        if(newError < -180) newError += 360;
         if (newError > 180) newError -= 360;
 
         oldTime = newTime;

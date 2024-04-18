@@ -11,8 +11,8 @@ void setup()
 {
   imuSetup();
   sensorInit();
-  motorSetup();
-
+  motorSetup();  
+  delay(1000);
 }
 
 void loop()
@@ -45,7 +45,8 @@ void loop()
   delay(1000);
   turnTo('N');
   delay(1000);*/
-  setForwardPWM(160);
-  delay(5000);
+   setForwardPWM(160);
+   delay(2000);
 
+  
 }
