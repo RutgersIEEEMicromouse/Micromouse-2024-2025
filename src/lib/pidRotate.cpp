@@ -46,8 +46,10 @@ void turnTo(char direction) {
     double sampleAngle = angle();
     while(abs(newError) > 1.5) {
         // stall detection
-        if(micros() > sampleTime + 1e6){
+        if(micros() > sampleTime + 50e3){
             if(angle() == sampleAngle) {
+                setRightPWM(0);
+                setLeftPWM(0);
                 return;
             }
             sampleTime = micros();

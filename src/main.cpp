@@ -3,6 +3,9 @@
 #include "lib/motors.h"
 #include "lib/pidRotate.h"
 #include "lib/pidStraight.h"
+#include "../src/pathfinding/API.h"
+#include "../src/pathfinding/Flood.h"
+#include "../src/pathfinding/simAPI.h"
 
 
 VL53L1X sensor;
@@ -11,42 +14,22 @@ void setup()
 {
   imuSetup();
   sensorInit();
-  motorSetup();  
-  delay(1000);
+  motorSetup();
+  delay(500);
+  pinMode(LED_BUILTIN, OUTPUT);
+  delay(500);
+  digitalWrite(LED_BUILTIN, HIGH);
+  setForwardPWM(50);
+  delay(500);
+  initialize();
 }
 
 void loop()
 {
-//turnTo('W');
-  // Serial.print(sensor.read());
-  // if (sensor.timeoutOccurred()) { Serial.print(" TIMEOUT"); }
 
-  // Serial.println();
-  // delay(500);
-  // Serial.println(front());
-  // Serial.println(left());
-  // Serial.println(right());
-  // Serial.print("angle(): ");
-  // Serial.println(angle());
-  // setLeftPWM(100);
-  // setRightPWM(100);
-  // Serial.print("angle(): ");
-  // Serial.println(angle());
-/*  turnTo('W');
+  // delay(1000);
+  // //setForwardPWM(160);
+  // delay(2000);  
+  runMaze('c');
 
-  delay(1000);
-  turnTo('S');
-  // Serial.print("angle(): ");
-  // Serial.println(angle());
-  delay(1000);
-  turnTo('E');
-  // Serial.print("angle(): ");
-  // Serial.println(angle());
-  delay(1000);
-  turnTo('N');
-  delay(1000);*/
-   setForwardPWM(160);
-   delay(2000);
-
-  
 }

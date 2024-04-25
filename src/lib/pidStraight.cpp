@@ -56,7 +56,7 @@ void setForwardPWM(double distance) {
         long dt = currentTime - startTime;
         
         //Integral (I) 
-        if(abs(new_right_error) < 200) {
+        if(abs(new_right_error) < 200) {      
             right_error_integral += ((new_right_error - old_right_pos_error) * dt) / 2;
             left_error_integral += ((new_left_error - old_left_pos_error) * dt) / 2;
         } 
@@ -79,8 +79,10 @@ void setForwardPWM(double distance) {
         // delay(1000);
 
         //To deal with stalling
-        if(micros() > sampleTime + 1e6) {
+        if(micros() > sampleTime + 50e3) {
             if(abs(encRight.read() - sampleRight) < 2 || abs(encLeft.read() - sampleLeft) < 2) {
+                setRightPWM(0);
+                setLeftPWM(0);
                 return;
             }
             sampleRight = encRight.read();
