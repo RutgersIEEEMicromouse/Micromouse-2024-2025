@@ -78,9 +78,15 @@ void setForwardPWM(double distance) {
         // Serial.println(angle_error);
         // delay(1000);
 
-        //To deal with stalling
+        //To deal with stalling and check for front wall
         if(micros() > sampleTime + 50e3) {
             if(abs(encRight.read() - sampleRight) < 2 || abs(encLeft.read() - sampleLeft) < 2) {
+                setRightPWM(0);
+                setLeftPWM(0);
+                return;
+            }
+
+            if(front() < 15) {
                 setRightPWM(0);
                 setLeftPWM(0);
                 return;

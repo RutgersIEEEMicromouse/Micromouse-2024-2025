@@ -22,14 +22,14 @@ void setup()
   setForwardPWM(50);
   delay(500);
   initialize();
+
+  runMaze('c');
+
 }
 
 void loop()
 {
-
-  // delay(1000);
-  // //setForwardPWM(160);
-  // delay(2000);  
-  runMaze('c');
+  // Serial.println(left());
+  // delay(500);
 
 }

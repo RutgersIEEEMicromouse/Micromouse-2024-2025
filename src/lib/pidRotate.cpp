@@ -2,7 +2,7 @@
 
 double p = 1.1;
 double d = 0;
-double i = 4;
+double i = 8;
 void turnTo(char direction) {
     double targetDirection = 0;
 
