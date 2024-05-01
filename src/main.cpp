@@ -9,6 +9,9 @@
 
 
 VL53L1X sensor;
+int modePin = 12;  // LED connected to digital pin 13
+int val = 0;      // variable to store the read value
+
 
 void setup()
 {
@@ -23,13 +26,15 @@ void setup()
   delay(500);
   initialize();
 
-  runMaze('c');
+  // runMaze('c');
+  
 
 }
 
 void loop()
 {
-  // Serial.println(left());
-  // delay(500);
+  val = digitalRead(modePin);   // read the input pin
+  Serial.println(val);
+  delay(500);
 
 }
