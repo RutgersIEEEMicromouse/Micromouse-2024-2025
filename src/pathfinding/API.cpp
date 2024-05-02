@@ -33,7 +33,7 @@ bool API::wallLeft() {
 
 //  pidstraight_instance->InputToMotor(0,blocklength); //go 11 cm. works fine
 //   pidrotate_instance->InputToMotor(-90); //left 90
-double blockLength = 152;
+double blockLength = 155;
 
 void API::moveForward() {
     setForwardPWM(blockLength);

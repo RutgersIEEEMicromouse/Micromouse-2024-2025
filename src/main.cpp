@@ -26,15 +26,16 @@ void setup()
   delay(500);
   initialize();
 
-  // runMaze('c');
-  
+  val = digitalRead(modePin);   // read the input pin
+  if(val == 0) {
+    runMaze('c');
+  } else {
+    digitalWrite(LED_BUILTIN, LOW);
+  }
 
 }
 
 void loop()
 {
-  val = digitalRead(modePin);   // read the input pin
-  Serial.println(val);
-  delay(500);
-
+  
 }
