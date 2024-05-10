@@ -6,6 +6,8 @@
 #include "../src/pathfinding/API.h"
 #include "../src/pathfinding/Flood.h"
 #include "../src/pathfinding/simAPI.h"
+#include "../src/pathfinding/labyrinth.h"
+
 
 
 VL53L1X sensor;
@@ -15,6 +17,7 @@ int val = 0;      // variable to store the read value
 
 void setup()
 {
+
   imuSetup();
   sensorInit();
   motorSetup();
@@ -25,12 +28,14 @@ void setup()
   setForwardPWM(50);
   delay(500);
   initialize();
+  Serial.println("Hello world");
 
   val = digitalRead(modePin);   // read the input pin
   if(val == 0) {
     runMaze('c');
   } else {
     digitalWrite(LED_BUILTIN, LOW);
+    labyrinth();
   }
 
 }

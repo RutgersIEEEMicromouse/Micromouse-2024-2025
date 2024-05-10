@@ -33,7 +33,7 @@ bool API::wallLeft() {
 
 //  pidstraight_instance->InputToMotor(0,blocklength); //go 11 cm. works fine
 //   pidrotate_instance->InputToMotor(-90); //left 90
-double blockLength = 155;
+double blockLength = 156;
 
 void API::moveForward() {
     setForwardPWM(blockLength);
@@ -41,7 +41,7 @@ void API::moveForward() {
 
     // extra distance in case the bot hasn't moved close enough to the front wall (between 30 and 50 mm)
     // try to move 50 mm, will be stopped distance is less than 15 (functionality built into forward pid)
-    if(front() >= 30 && front() <= 50) {
+    if(front() >= 30 && front() <= 80) {
             setForwardPWM(20);
     }
 
