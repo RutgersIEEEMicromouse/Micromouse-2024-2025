@@ -13,7 +13,7 @@
 const int N = 16; 
 
 // global array for the maze, tells the robot how to move
-extern int maze[N][N];
+extern char maze[N][N];
 
 
 struct configuration {
@@ -33,6 +33,9 @@ extern configuration poppedCfg; // global struct for popped cell cause why not
 
 extern std::stack<configuration> pathTaken;
 
+
+// TODO: try to use a bitmask with each bit representing the wall configuration (1 byte/cell)
+// instead of 4 bytes/cell
 struct openCells {
     bool openN = true; 
     bool openS = true;

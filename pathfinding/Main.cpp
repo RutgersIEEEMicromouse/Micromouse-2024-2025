@@ -67,6 +67,8 @@ int main(int argc, char* argv[]) {
     //Modified Flood Fill
     //https://marsuniversity.github.io/ece387/FloodFill.pdf
 
+    log(to_string(sizeof(maze)));
+    log(to_string(sizeof(walls)));
 
     //// STEP 1: Initial Solve
     initialize();

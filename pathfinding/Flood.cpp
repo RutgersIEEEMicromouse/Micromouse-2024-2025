@@ -4,7 +4,7 @@
 using namespace std;
 
 // "Definition checked against [extern] declaration"
-int maze[N][N] = 
+char maze[N][N] = 
 {{14, 13, 12, 11, 10, 9, 8, 7, 7, 8, 9, 10, 11, 12, 13, 14},
  {13, 12, 11, 10,  9, 8, 7, 6, 6, 7, 8,  9, 10, 11, 12, 13},
  {12, 11, 10,  9,  8, 7, 6, 5, 5, 6, 7,  8,  9, 10, 11, 12},   
@@ -526,11 +526,11 @@ void mazePrintout() {
             for(int i = 0; i < 16; i++) {
             
                 if(currentCfg.x == i && currentCfg.y == j) {
-                    if(maze[i][j] < 10) std::cerr << "[" << maze[i][j] << "], ";
-                    else std::cerr << "[" << maze[i][j] << "], ";
+                    if(maze[i][j] < 10) std::cerr << "[" << static_cast<int>(maze[i][j]) << "], ";
+                    else std::cerr << "[" << static_cast<int>(maze[i][j]) << "], ";
                 } else {
-                    if(maze[i][j] < 10) std::cerr << " " << maze[i][j] << ", ";
-                    else std::cerr << maze[i][j] << ", ";
+                    if(maze[i][j] < 10) std::cerr << " " << static_cast<int>(maze[i][j]) << ", ";
+                    else std::cerr << static_cast<int>(maze[i][j]) << ", ";
                 }
 
              
