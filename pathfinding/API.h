@@ -1,6 +1,3 @@
-
-#ifndef API_H
-#define API_H
 #pragma once
 
 #include <string>
@@ -17,8 +14,11 @@ public:
     static bool wallLeft();
 
     static void moveForward(int distance = 1);
+    static void moveForwardHalf(int numHalfSteps = 1);
     static void turnRight();
     static void turnLeft();
+    static void turnRight45();
+    static void turnLeft45();
 
     static void setWall(int x, int y, char direction);
     static void clearWall(int x, int y, char direction);
@@ -35,5 +35,3 @@ public:
     static void ackReset();
 
 };
-#endif
-
