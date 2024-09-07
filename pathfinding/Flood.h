@@ -33,14 +33,15 @@ extern configuration poppedCfg; // global struct for popped cell cause why not
 
 extern std::stack<configuration> pathTaken;
 
-
-// TODO: try to use a bitmask with each bit representing the wall configuration (1 byte/cell)
+// uses bitfields to specify each bool to only look at 1 bit
 // instead of 4 bytes/cell
 struct openCells {
-    bool openN = true; 
-    bool openS = true;
-    bool openE = true;
-    bool openW = true;
+    bool openN : 1; 
+    bool openS : 1;
+    bool openE : 1;
+    bool openW : 1;
+    // Constructor that initializes each variable to be open (1)
+    openCells() : openN(1), openS(1), openE(1), openW(1) {}
 };
 // list of walls for recursive cell update to use
 extern openCells walls[N][N];

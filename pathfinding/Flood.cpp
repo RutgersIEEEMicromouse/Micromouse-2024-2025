@@ -106,18 +106,13 @@ void flowElevation() {
     // given the maze, configuration, and wall checks, move to lower elevation until we hit 0
     // prioritize movements without turns if possible (TODO)
 
-//    Serial.println("Begin flow");
+    //    Serial.println("Begin flow");
     int x = currentCfg.x; // up and down on the array = EW, first term
     int y = currentCfg.y; // left and right on the array = NS, second term
-    // char dir = currentCfg.dir;
-
 
     // check if surrounding cells are valid, 
     // pick the lowest out of the open cells,
     // and move forward
-
-    // timeofflight_instance->readDistance();
-
     openCells checkOpen = checkOpenCells(currentCfg);
     bool openN = checkOpen.openN;
     bool openS = checkOpen.openS;
@@ -168,28 +163,6 @@ void flowElevation() {
         move('W');
         return;
     }
-    
-   /*
-    if(N == min && openN) {
-        move('N');
-        return;
-    }
-    if(S == min && openS) {
-        move('S');
-        return;
-    }
-    if(E == min && openE) {
-        move('E');
-        return;
-    }
-    if(W == min && openW) {
-        move('W');
-        return;
-    }
-    */
-
-    //update wall array after moving too
-
     return;
 }
 
@@ -201,17 +174,8 @@ void flowElevation() {
 //    (since these should stay 0)
 void checkNeigboringOpen(configuration poppedCfg) {
     
-    /*
-    openCells checkOpen = checkOpenCells(poppedCfg);
-
-    bool openN = checkOpen.openN;
-    bool openS = checkOpen.openS;
-    bool openE = checkOpen.openE;
-    bool openW = checkOpen.openW;
-
     // For the popped configuration, refer to the global 
     // walls array instead of checking from the API
-    */
 
     int x = poppedCfg.x;
     int y = poppedCfg.y;
