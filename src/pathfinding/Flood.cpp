@@ -4,7 +4,7 @@
 using namespace std;
 
 // "Definition checked against [extern] declaration"
-int maze[N][N] = 
+char maze[N][N] = 
 {{14, 13, 12, 11, 10, 9, 8, 7, 7, 8, 9, 10, 11, 12, 13, 14},
  {13, 12, 11, 10,  9, 8, 7, 6, 6, 7, 8,  9, 10, 11, 12, 13},
  {12, 11, 10,  9,  8, 7, 6, 5, 5, 6, 7,  8,  9, 10, 11, 12},   
@@ -42,14 +42,95 @@ void initialize() {
     currentCfg.y = 0;
     currentCfg.dir = 'N';
 
-    // set borders for walls array
-    for(int i = 0; i < 16; i++) {
-        walls[i][0].openS = false; // move along south wall
-        walls[i][15].openN = false; // move along north wall
-        walls[0][i].openW = false; // move along west wall
-        walls[15][i].openE = false; // move along east wall
+    
+    // read from pins, floating voltages are pulled down to GND if 3.3V isn't is applied
+    pinMode(memory_button, INPUT_PULLDOWN);
+    pinMode(memory_switch, INPUT_PULLDOWN);
+
+    // if switch is on, load the maze from EEPROM
+    if(digitalRead(memory_switch)) {
+        loadMazeFromEEPROM(maze);
+        loadWallsFromEEPROM(walls);
+        Serial.println("loaded");
+        digitalWrite(LED_BUILTIN, LOW);
+        delay(200);
+        digitalWrite(LED_BUILTIN, HIGH);
+        delay(200);
+        digitalWrite(LED_BUILTIN, LOW);
+        delay(200);
+        digitalWrite(LED_BUILTIN, HIGH);
+    } else {
+        // start maze from scratch
+        // set borders for walls array
+        for(int i = 0; i < 16; i++) {
+            walls[i][0].openS = false; // move along south wall
+            walls[i][15].openN = false; // move along north wall
+            walls[0][i].openW = false; // move along west wall
+            walls[15][i].openE = false; // move along east wall
+        }
+
+
+    
+    }
+
+}
+
+
+
+// Maze memory code
+
+void saveMazeToEEPROM(char maze[N][N]) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            EEPROM.write(i * N + j, maze[i][j]);
+        }
     }
 }
+
+void loadMazeFromEEPROM(char maze[N][N]) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            maze[i][j] = EEPROM.read(i * N + j);
+        }
+    }
+}
+
+void saveWallsToEEPROM(openCells walls[N][N]) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            int index = i * N + j + 256;
+            EEPROM.write(index, walls[i][j].openN | (walls[i][j].openS << 1) | (walls[i][j].openE << 2) | (walls[i][j].openW << 3));
+        }
+    }
+}
+
+void loadWallsFromEEPROM(openCells walls[N][N]) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            int index = i * N + j + 256;
+            unsigned char data = EEPROM.read(index);
+            walls[i][j].openN = data & 0x01;
+            walls[i][j].openS = (data >> 1) & 0x01;
+            walls[i][j].openE = (data >> 2) & 0x01;
+            walls[i][j].openW = (data >> 3) & 0x01;
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -668,6 +749,24 @@ void runMaze(char goal) {
 
             mazePrintout();
         }
+    
+    // wait for button push for storing maze info into EEPROM
+    while(1) {
+        delay(300);
+        if(digitalRead(memory_button)) {
+            saveMazeToEEPROM(maze);
+            saveWallsToEEPROM(walls);
+            Serial.println("saved");
+            digitalWrite(LED_BUILTIN, LOW);
+            delay(200);
+            digitalWrite(LED_BUILTIN, HIGH);
+            delay(200);
+            digitalWrite(LED_BUILTIN, LOW);
+            delay(200);
+            digitalWrite(LED_BUILTIN, HIGH);
+        }
+
+    }
     
 }
 

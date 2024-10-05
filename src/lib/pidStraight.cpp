@@ -45,7 +45,7 @@ void setForwardPWM(double distance) {
     long sampleRight = encRight.read();
     long sampleLeft = encLeft.read();
 
-    while(abs(encRight.read() - right_final_pos) > 5 && abs(encLeft.read() - left_final_pos) > 5) {
+    while(abs(encRight.read() - right_final_pos) > 5 && abs(encLeft.read() - left_final_pos) > 3) {
         currentAngle = angle();
 
         long new_right_error = right_final_pos - encRight.read();

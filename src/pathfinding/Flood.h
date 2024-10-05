@@ -7,13 +7,18 @@
 // #include "..\src\lib\motors.h"
 #include<stack>
 #include<algorithm>
+#include <EEPROM.h>
+
 
 
 //// variable declarations
 const int N = 16; 
 
+#define memory_button 15
+#define memory_switch 20
+
 // global array for the maze, tells the robot how to move
-extern int maze[N][N];
+extern char maze[N][N];
 
 
 struct configuration {
@@ -34,10 +39,12 @@ extern configuration poppedCfg; // global struct for popped cell cause why not
 extern std::stack<configuration> pathTaken;
 
 struct openCells {
-    bool openN = true; 
-    bool openS = true;
-    bool openE = true;
-    bool openW = true;
+  bool openN : 1; 
+  bool openS : 1;
+  bool openE : 1;
+  bool openW : 1;
+  // Constructor that initializes each variable to be open (1)
+  openCells() : openN(1), openS(1), openE(1), openW(1) {}
 };
 // list of walls for recursive cell update to use
 extern openCells walls[N][N];
@@ -46,6 +53,13 @@ extern openCells walls[N][N];
 
 //// function declarations
 void initialize();
+
+void saveMazeToEEPROM(char maze[N][N]);
+void loadMazeFromEEPROM(char maze[N][N]);
+void saveWallsToEEPROM(openCells walls[N][N]);
+void loadWallsFromEEPROM(openCells walls[N][N]);
+
+
 void flowElevation();
 openCells checkOpenCells(configuration currentCfg);
 void checkNeigboringOpen(configuration poppedCfg);

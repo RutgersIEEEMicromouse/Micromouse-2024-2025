@@ -31,6 +31,7 @@ void setup()
   Serial.println("Hello world");
 
   val = digitalRead(modePin);   // read the input pin
+
   if(val == 0) {
     runMaze('c');
   } else {
@@ -38,9 +39,15 @@ void setup()
     labyrinth();
   }
 
+  
+
 }
 
 void loop()
 {
+  // delay(500);
   
+  // Serial.println(digitalRead(modePin));
+  // Serial.println(digitalRead(memory_button));
+  // Serial.println(digitalRead(memory_switch));
 }
