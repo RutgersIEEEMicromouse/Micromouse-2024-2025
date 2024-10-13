@@ -1,6 +1,7 @@
 # Redieeem
 
-## Maze Algorithm
+Bot potentially for long Island
 
-Unfortunately, in MIT 2024, the floodfill algorithm failed. After testing the bot with further mazes, the setwalls function caused this problem. It has been fixed! In addition, OOP sucks!
+## Components
 
+[pathfinding](./pathfinding/pathfinding.md)
