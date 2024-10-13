@@ -116,7 +116,7 @@ void setForwardPWM(double distance) {
         // }
 
         setRightPWM(rightpid );
-        setLeftPWM( leftpid );
+        setLeftPWM( leftpid * 1.01);
 
         old_right_pos_error = new_right_error;
         old_left_pos_error = new_left_error;

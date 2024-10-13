@@ -14,7 +14,7 @@ bool API::wallFront() {
 
 bool API::wallRight() {
     int distance = right();
-    if(distance < 80) {
+    if(distance < 100) {
         return true;
     } else {
         return false;
@@ -23,7 +23,7 @@ bool API::wallRight() {
 
 bool API::wallLeft() {
     int distance = left();
-    if(distance < 80) {
+    if(distance < 100) {
         return true;
     } else {
         return false;
@@ -33,7 +33,7 @@ bool API::wallLeft() {
 
 //  pidstraight_instance->InputToMotor(0,blocklength); //go 11 cm. works fine
 //   pidrotate_instance->InputToMotor(-90); //left 90
-double blockLength = 156;
+double blockLength = 160;
 
 void API::moveForward() {
     setForwardPWM(blockLength);
