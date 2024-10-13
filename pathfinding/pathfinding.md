@@ -1,3 +1,4 @@
+[return](../README.md)
 # Maze Algorithm
 
 ## MIT 2024
@@ -11,7 +12,7 @@ Most likely, the setwalls function. It would set a wall at a place where there i
 
 ## Revisions
 
-Instead of manually setting the walls, they were broken down into functions.
+Instead of manually setting the walls directly, helper functions were used.
 
 ```cpp
 static void setsouthwall(point point)
@@ -33,3 +34,15 @@ static void setsouthwall(point point)
 }
 
 ```
+
+
+## Running Maze Algorithm in simulation
+
+to run:
+
+```
+make # compiles the file
+./output/main #runs the file
+```
+
+This uses the [following simulator](https://github.com/mackorone/mms?tab=readme-ov-file#maze-files)
