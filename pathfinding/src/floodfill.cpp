@@ -109,17 +109,17 @@ static void setnorthwall(point point)
 {
     maze[point.x][point.y].N = 1;
     API::setWall(point.x, point.y, 'n');
-    fprintf(stderr, "Set north wall at (%d, %d)\n", point.x, point.y);
+    //fprintf(stderr, "Set north wall at (%d, %d)\n", point.x, point.y);
 
     if (point.y < 15)
     {
         maze[point.x][point.y + 1].S = 1;
         API::setWall(point.x, point.y + 1, 's');
-        fprintf(stderr, "Set south wall at (%d, %d)\n", point.x, point.y + 1);
+        //fprintf(stderr, "Set south wall at (%d, %d)\n", point.x, point.y + 1);
     }
     else
     {
-        fprintf(stderr, "Cannot set south wall; out of bounds for (%d, %d)\n", point.x, point.y);
+        //fprintf(stderr, "Cannot set south wall; out of bounds for (%d, %d)\n", point.x, point.y);
     }
 }
 
@@ -131,17 +131,17 @@ static void setsouthwall(point point)
 {
     maze[point.x][point.y].S = 1;
     API::setWall(point.x, point.y, 's');
-    fprintf(stderr, "Set south wall at (%d, %d)\n", point.x, point.y);
+    //fprintf(stderr, "Set south wall at (%d, %d)\n", point.x, point.y);
 
     if (point.y > 0)
     {
         maze[point.x][point.y - 1].N = 1;
         API::setWall(point.x, point.y - 1, 'n');
-        fprintf(stderr, "Set north wall at (%d, %d)\n", point.x, point.y - 1);
+        //fprintf(stderr, "Set north wall at (%d, %d)\n", point.x, point.y - 1);
     }
     else
     {
-        fprintf(stderr, "Cannot set north wall; out of bounds for (%d, %d)\n", point.x, point.y);
+        //fprintf(stderr, "Cannot set north wall; out of bounds for (%d, %d)\n", point.x, point.y);
     }
 }
 
@@ -153,17 +153,17 @@ static void setwestwall(point point)
 {
     maze[point.x][point.y].W = 1;
     API::setWall(point.x, point.y, 'w');
-    fprintf(stderr, "Set west wall at (%d, %d)\n", point.x, point.y);
+    //fprintf(stderr, "Set west wall at (%d, %d)\n", point.x, point.y);
 
     if (point.x > 0)
     {
         maze[point.x - 1][point.y].E = 1;
         API::setWall(point.x - 1, point.y, 'e');
-        fprintf(stderr, "Set east wall at (%d, %d)\n", point.x - 1, point.y);
+        //fprintf(stderr, "Set east wall at (%d, %d)\n", point.x - 1, point.y);
     }
     else
     {
-        fprintf(stderr, "Cannot set east wall; out of bounds for (%d, %d)\n", point.x, point.y);
+        //fprintf(stderr, "Cannot set east wall; out of bounds for (%d, %d)\n", point.x, point.y);
     }
 }
 
@@ -175,17 +175,17 @@ static void seteastwall(point point)
 {
     maze[point.x][point.y].E = 1;
     API::setWall(point.x, point.y, 'e');
-    fprintf(stderr, "Set east wall at (%d, %d)\n", point.x, point.y);
+    //fprintf(stderr, "Set east wall at (%d, %d)\n", point.x, point.y);
 
     if (point.x < 15)
     {
         maze[point.x + 1][point.y].W = 1;
         API::setWall(point.x + 1, point.y, 'w');
-        fprintf(stderr, "Set west wall at (%d, %d)\n", point.x + 1, point.y);
+        //fprintf(stderr, "Set west wall at (%d, %d)\n", point.x + 1, point.y);
     }
     else
     {
-        fprintf(stderr, "Cannot set west wall; out of bounds for (%d, %d)\n", point.x, point.y);
+        //fprintf(stderr, "Cannot set west wall; out of bounds for (%d, %d)\n", point.x, point.y);
     }
 }
 
@@ -278,7 +278,7 @@ static void realturn(char dir)
         current.x++;
         break;
     default:
-        std::cerr << "Invalid direction" << std::endl;
+        //std::cerr << "Invalid direction" << std::endl;
         break;
     };
 
@@ -384,7 +384,7 @@ void floodfill()
 {
     while (current.x != destination.x || current.y != destination.y)
     {
-        std::cerr << "uh!!!" << std::endl;
+        //std::cerr << "uh!!!" << std::endl;
         // Initialize minimum weight
         char temp_direction;
         uint16_t minweight = 0x7FFF;
