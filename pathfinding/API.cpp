@@ -3,20 +3,11 @@
 #include <cstdlib>
 #include <iostream>
 
-int API::mazeWidth() {
-    std::cout << "mazeWidth" << std::endl;
-    std::string response;
-    std::cin >> response;
-    return atoi(response.c_str());
-}
 
-int API::mazeHeight() {
-    std::cout << "mazeHeight" << std::endl;
-    std::string response;
-    std::cin >> response;
-    return atoi(response.c_str());
-}
+// TODO: Add an ifdef REAL to define real functions
 
+
+#ifdef SIM
 bool API::wallFront() {
     std::cout << "wallFront" << std::endl;
     std::string response;
@@ -93,6 +84,22 @@ void API::turnLeft45() {
     std::string ack;
     std::cin >> ack;
 }
+
+
+int API::mazeWidth() {
+    std::cout << "mazeWidth" << std::endl;
+    std::string response;
+    std::cin >> response;
+    return atoi(response.c_str());
+}
+
+int API::mazeHeight() {
+    std::cout << "mazeHeight" << std::endl;
+    std::string response;
+    std::cin >> response;
+    return atoi(response.c_str());
+}
+
 void API::setWall(int x, int y, char direction) {
     std::cout << "setWall " << x << " " << y << " " << direction << std::endl;
 }
@@ -137,3 +144,5 @@ void API::ackReset() {
     std::string ack;
     std::cin >> ack;
 }
+#endif
+

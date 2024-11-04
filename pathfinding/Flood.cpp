@@ -37,6 +37,29 @@ void initialize() {
     currentCfg.y = 0;
     currentCfg.dir = 'N';
 
+
+#ifdef REAL
+    // read from pins, floating voltages are pulled down to GND if 3.3V isn't is applied
+    pinMode(memory_button, INPUT_PULLDOWN);
+    pinMode(memory_switch, INPUT_PULLDOWN);
+
+    // if switch is on, load the maze from EEPROM
+    if(digitalRead(memory_switch)) {
+        loadMazeFromEEPROM(maze);
+        loadWallsFromEEPROM(walls);
+        Serial.println("loaded");
+        digitalWrite(LED_BUILTIN, LOW);
+        delay(200);
+        digitalWrite(LED_BUILTIN, HIGH);
+        delay(200);
+        digitalWrite(LED_BUILTIN, LOW);
+        delay(200);
+        digitalWrite(LED_BUILTIN, HIGH);
+    } else {
+#endif
+
+
+    // start maze from scratch
     // set borders for walls array
     for(int i = 0; i < 16; i++) {
         walls[i][0].openS = false; // move along south wall
@@ -44,7 +67,59 @@ void initialize() {
         walls[0][i].openW = false; // move along west wall
         walls[15][i].openE = false; // move along east wall
     }
+
+#ifdef REAL
+    }
+#endif
+
 }
+
+#ifdef REAL
+// Maze memory code
+
+void saveMazeToEEPROM(char maze[N][N]) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            EEPROM.write(i * N + j, maze[i][j]);
+        }
+    }
+}
+
+void loadMazeFromEEPROM(char maze[N][N]) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            maze[i][j] = EEPROM.read(i * N + j);
+        }
+    }
+}
+
+void saveWallsToEEPROM(openCells walls[N][N]) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            int index = i * N + j + 256;
+            EEPROM.write(index, walls[i][j].openN | (walls[i][j].openS << 1) | (walls[i][j].openE << 2) | (walls[i][j].openW << 3));
+        }
+    }
+}
+
+void loadWallsFromEEPROM(openCells walls[N][N]) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            int index = i * N + j + 256;
+            unsigned char data = EEPROM.read(index);
+            walls[i][j].openN = data & 0x01;
+            walls[i][j].openS = (data >> 1) & 0x01;
+            walls[i][j].openE = (data >> 2) & 0x01;
+            walls[i][j].openW = (data >> 3) & 0x01;
+        }
+    }
+}
+#endif
+
+
+
+
+
 
 
 
@@ -96,6 +171,22 @@ openCells checkOpenCells(configuration currentCfg) {
     walls[x][y].openS = temp.openS;
     walls[x][y].openE = temp.openE;
     walls[x][y].openW = temp.openW;
+
+    //update for adjacent cells too
+    //N = +y
+    //S = -y
+    //E = +x
+    //W = -x	
+    if(y+1 <= 15 && temp.openN) walls[x][y+1].openS = temp.openN; // update openS of north cell 
+    if(y-1 >= 0 && temp.openS) walls[x][y-1].openN = temp.openS; // update south cell
+    if(x+1 <= 15 && temp.openE) walls[x+1][y].openW = temp.openE; // update openW of east cell
+    if(x-1 >= 0 && temp.openW) walls[x-1][y].openE = temp.openW; // update west cell
+
+
+
+#ifdef SIM
+    visualizeWalls(x, y, walls[x][y]);
+#endif
 
     return temp;
 }
@@ -249,6 +340,11 @@ void checkNeigboringOpen(configuration poppedCfg) {
     }
 
     // std::cerr << "stack size: " << cellStack.size();
+	
+
+#ifdef SIM
+    visualizeMaze(maze);
+#endif
 
     return;
 }
@@ -482,6 +578,7 @@ void invertMaze(char goal) {
 }
 */
 
+#ifdef SIM
 // printout maze with bot starting at bottom left
 void mazePrintout() {
     // printout maze
@@ -504,6 +601,52 @@ void mazePrintout() {
         }
         std::cerr << std::endl;        
 }
+
+// update visualizations in sim
+void visualizeMaze(char maze[N][N]) {
+	for (int i = 0; i < 16; i++) {
+		for (int j = 0; j < 16; j++) {
+			API::setText(i, j, to_string(static_cast<int>(maze[i][j])));
+		}
+	}
+}
+
+
+void visualizeWalls(int i, int j, openCells cell) {
+	if (!walls[i][j].openN) API::setWall(i, j, 'n');
+	if (!walls[i][j].openS) API::setWall(i, j, 's');
+	if (!walls[i][j].openE) API::setWall(i, j, 'e');
+	if (!walls[i][j].openW) API::setWall(i, j, 'w');
+}
+
+#endif
+
+#ifdef REAL
+void mazePrintout() {
+    // printout maze
+        for(int j = 4; j >= 0; j--) {
+            for(int i = 0; i < 5; i++) {
+
+                if(currentCfg.x == i && currentCfg.y == j) {
+                    Serial.print("[");
+                    Serial.print(maze[i][j]);
+                    Serial.print("], ");
+                } else {
+                    Serial.print(" ");
+                    Serial.print(maze[i][j]);
+                    Serial.print(", ");
+                }
+
+
+            }
+        Serial.println();
+        }
+        Serial.println();
+}
+#endif
+
+
+
 
 void runMaze(char goal) {
     //Serial.print("Start 2");
@@ -542,8 +685,30 @@ void runMaze(char goal) {
             }
 
             mazePrintout();
+
         }
-    
+
+#ifdef REAL
+    // wait for button push for storing maze info into EEPROM
+    while(1) {
+        delay(300);
+        if(digitalRead(memory_button)) {
+            saveMazeToEEPROM(maze);
+            saveWallsToEEPROM(walls);
+            Serial.println("saved");
+            digitalWrite(LED_BUILTIN, LOW);
+            delay(200);
+            digitalWrite(LED_BUILTIN, HIGH);
+            delay(200);
+            digitalWrite(LED_BUILTIN, LOW);
+            delay(200);
+            digitalWrite(LED_BUILTIN, HIGH);
+        }
+
+    }
+
+#endif
+
 }
 
     //N = +y

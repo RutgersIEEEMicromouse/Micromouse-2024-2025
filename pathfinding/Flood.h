@@ -4,9 +4,17 @@
 
 
 #include "API.h"
-//#include "..\Motors.h"
 #include<stack>
 #include<algorithm>
+
+#ifdef REAL
+#include <EEPROM.h>
+
+#define memory_button 15
+#define memory_switch 20
+<F9>
+#endif
+
 
 
 //// variable declarations
@@ -50,13 +58,32 @@ extern openCells walls[N][N];
 
 //// function declarations
 void initialize();
+
+#ifdef REAL
+void saveMazeToEEPROM(char maze[N][N]);
+void loadMazeFromEEPROM(char maze[N][N]);
+void saveWallsToEEPROM(openCells walls[N][N]);
+void loadWallsFromEEPROM(openCells walls[N][N]);
+#endif
+#ifdef SIM
+void visualizeMaze(char maze[N][N]);
+void visualizeWalls(int x, int y, openCells cell);
+#endif
+
+
+
 void flowElevation();
 openCells checkOpenCells(configuration currentCfg);
 void checkNeigboringOpen(configuration poppedCfg);
 void move(char direction);
-void invertMaze(char goal);
+//void invertMaze(char goal);
 void mazePrintout();
 void runMaze(char goal);
 void backTrack();
+
+// TODO
+// converts maze and wall configuration to continuous straight and diagonals
+//void speedrun();
+
 
 #endif

@@ -2,12 +2,23 @@
 
 #include <string>
 
+#define SIM
+// #define REAL
+
+// define physical libraries if real
+#ifdef REAL
+
+#include "..\src\lib\distance_sensor.h"
+#include "..\src\lib\pidRotate.h"
+#include "..\src\lib\pidStraight.h"
+#include "..\src\lib\IMU.h"
+
+#endif
+
 class API {
 
 public:
 
-    static int mazeWidth();
-    static int mazeHeight();
 
     static bool wallFront();
     static bool wallRight();
@@ -20,6 +31,10 @@ public:
     static void turnRight45();
     static void turnLeft45();
 
+// define simulator functions if sim
+#ifdef SIM 
+    static int mazeWidth();
+    static int mazeHeight();
     static void setWall(int x, int y, char direction);
     static void clearWall(int x, int y, char direction);
 
@@ -33,5 +48,5 @@ public:
 
     static bool wasReset();
     static void ackReset();
-
+#endif
 };

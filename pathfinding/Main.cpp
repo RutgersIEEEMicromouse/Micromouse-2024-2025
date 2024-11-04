@@ -1,9 +1,15 @@
+#include "API.h"
+
+#ifdef SIM
+
+
+
+
 #include <iostream>
 #include <string>
 #include <stack>
 #include <algorithm>
 
-#include "API.h"
 #include "Flood.h"
 using namespace std;
 
@@ -30,11 +36,12 @@ int main(int argc, char* argv[]) {
     initialize();
     runMaze('c');
     backTrack();
-//    runMaze('c');
-//    backTrack();
-//    runMaze('c');
-//    backTrack();
-    
+
+   
+    for (int run = 0; run < 10; run++) {
+	    runMaze('c');
+	    backTrack();
+    }
 }
 
-
+#endif
