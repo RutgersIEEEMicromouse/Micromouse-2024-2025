@@ -39,6 +39,7 @@ int main(int argc, char* argv[]) {
 
    
     for (int run = 0; run < 10; run++) {
+	    speedrun();
 	    runMaze('c');
 	    backTrack();
     }

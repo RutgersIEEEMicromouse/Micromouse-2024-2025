@@ -5,6 +5,7 @@
 
 #include "API.h"
 #include<stack>
+#include<queue>
 #include<algorithm>
 
 #ifdef REAL
@@ -12,7 +13,7 @@
 
 #define memory_button 15
 #define memory_switch 20
-<F9>
+
 #endif
 
 
@@ -48,8 +49,9 @@ struct openCells {
     bool openS : 1;
     bool openE : 1;
     bool openW : 1;
+    bool visited: 1; // used for fast running
     // Constructor that initializes each variable to be open (1)
-    openCells() : openN(1), openS(1), openE(1), openW(1) {}
+    openCells() : openN(1), openS(1), openE(1), openW(1), visited(0) {}
 };
 // list of walls for recursive cell update to use
 extern openCells walls[N][N];
@@ -83,7 +85,7 @@ void backTrack();
 
 // TODO
 // converts maze and wall configuration to continuous straight and diagonals
-//void speedrun();
+void speedrun();
 
 
 #endif

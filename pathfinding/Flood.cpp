@@ -486,120 +486,120 @@ void invertMaze(char goal) {
     // if the goal is to get back to the center
     else if(goal == 'c') {
         // use minimum of the 4 center squares as the endCell
-        int arraySort[4] = {maze[7][7], maze[7][8], maze[8][7], maze[8][8]};
-        std::sort(arraySort, arraySort + 4);
-        endCell = arraySort[0];
-    }
-    
-    // deadend filler, if cell has value greater than value of the startpoint
-    // set the cell as a closed cell with openN, openS, openE, openW = false
-     
-    // also if a cell next to a dead end cell only has 1 other open cell
-    // it is a closed cell as well 
-    std::stack<configuration> deadendStack;
-    configuration pushCfg;
+	int arraySort[4] = {maze[7][7], maze[7][8], maze[8][7], maze[8][8]};
+	std::sort(arraySort, arraySort + 4);
+	endCell = arraySort[0];
+	}
 
-    for(int i = 0; i < 16; i++) {
-        for(int j = 0; j < 16; j++) {
-            if(maze[i][j] > goal) {
-                pushCfg.x = i;
-                pushCfg.y = j;
-                // don't need dir
-                deadendStack.push(pushCfg);
-            }
-        }
-    }
+// deadend filler, if cell has value greater than value of the startpoint
+// set the cell as a closed cell with openN, openS, openE, openW = false
 
-    //N = +y
-    //S = -y
-    //E = +x
-    //W = -x
+// also if a cell next to a dead end cell only has 1 other open cell
+// it is a closed cell as well 
+std::stack<configuration> deadendStack;
+configuration pushCfg;
 
-    while(!deadendStack.empty()) {
-        poppedCfg = deadendStack.top();
-        deadendStack.pop();
+for(int i = 0; i < 16; i++) {
+for(int j = 0; j < 16; j++) {
+if(maze[i][j] > goal) {
+pushCfg.x = i;
+pushCfg.y = j;
+// don't need dir
+deadendStack.push(pushCfg);
+}
+}
+}
 
-        int x = poppedCfg.x;
-        int y = poppedCfg.y;
-        // don't need dir
+//N = +y
+//S = -y
+//E = +x
+//W = -x
 
-        // first push open neigbors to stack
-        openCells neigboringOpen;
-        neigboringOpen.openN = walls[x][y].openN;
-        neigboringOpen.openS = walls[x][y].openS;
-        neigboringOpen.openE = walls[x][y].openE;
-        neigboringOpen.openW = walls[x][y].openW;
+while(!deadendStack.empty()) {
+poppedCfg = deadendStack.top();
+deadendStack.pop();
 
-        pushCfg = poppedCfg;
-        if(neigboringOpen.openN) {
-            pushCfg.y++; 
-            deadendStack.push(pushCfg);
-            pushCfg.y--;
-        }
-        if(neigboringOpen.openS) {
-            pushCfg.y--; 
-            deadendStack.push(pushCfg);
-            pushCfg.y++;
-        }
-        if(neigboringOpen.openE) {
-            pushCfg.x++; 
-            deadendStack.push(pushCfg);
-            pushCfg.x--;
-        }
-        if(neigboringOpen.openW) {
-            pushCfg.x--; 
-            deadendStack.push(pushCfg);
-            pushCfg.x++;
-        }
+int x = poppedCfg.x;
+int y = poppedCfg.y;
+// don't need dir
 
-        // conditions for being a deadend cell:
-        // - value greater than start node (we already did this)
-        // - is closed off on 3 sides
-        // - is next to a deadend cell (adding to stack sorts these) and only has 2 open side
-        //   (one side that leads into the dead end and one that leads out)
-        int numOpen = neigboringOpen.openN + neigboringOpen.openS + neigboringOpen.openE + neigboringOpen.openW;
-        if((maze[x][y] > goal) || (numOpen <= 2)) {
-            walls[x][y].openN = false;
-            walls[x][y].openS = false;
-            walls[x][y].openE = false;
-            walls[x][y].openW = false;
-        }
-    }
+// first push open neigbors to stack
+openCells neigboringOpen;
+neigboringOpen.openN = walls[x][y].openN;
+neigboringOpen.openS = walls[x][y].openS;
+neigboringOpen.openE = walls[x][y].openE;
+neigboringOpen.openW = walls[x][y].openW;
 
-    //invert the maze by doing endCell - maze[i][j]
-    // -> endCell will become 0 (goal)
-    for(int i = 0; i < 16; i++) {
-        for(int j = 0; j < 16; j++) {
-            maze[i][j] = endCell - maze[i][j];
-        }
-    }
+pushCfg = poppedCfg;
+if(neigboringOpen.openN) {
+pushCfg.y++; 
+deadendStack.push(pushCfg);
+pushCfg.y--;
+}
+if(neigboringOpen.openS) {
+pushCfg.y--; 
+deadendStack.push(pushCfg);
+pushCfg.y++;
+}
+if(neigboringOpen.openE) {
+pushCfg.x++; 
+deadendStack.push(pushCfg);
+pushCfg.x--;
+}
+if(neigboringOpen.openW) {
+	pushCfg.x--; 
+	deadendStack.push(pushCfg);
+	pushCfg.x++;
+}
 
-    return;
+// conditions for being a deadend cell:
+// - value greater than start node (we already did this)
+// - is closed off on 3 sides
+// - is next to a deadend cell (adding to stack sorts these) and only has 2 open side
+//   (one side that leads into the dead end and one that leads out)
+int numOpen = neigboringOpen.openN + neigboringOpen.openS + neigboringOpen.openE + neigboringOpen.openW;
+if((maze[x][y] > goal) || (numOpen <= 2)) {
+	walls[x][y].openN = false;
+	walls[x][y].openS = false;
+	walls[x][y].openE = false;
+	walls[x][y].openW = false;
+}
+}
+
+//invert the maze by doing endCell - maze[i][j]
+// -> endCell will become 0 (goal)
+for(int i = 0; i < 16; i++) {
+	for(int j = 0; j < 16; j++) {
+		maze[i][j] = endCell - maze[i][j];
+	}
+}
+
+return;
 }
 */
 
 #ifdef SIM
 // printout maze with bot starting at bottom left
 void mazePrintout() {
-    // printout maze
-        std::cerr << std::endl;
-        for(int j = 15; j >= 0; j--) {
-            for(int i = 0; i < 16; i++) {
-            
-                if(currentCfg.x == i && currentCfg.y == j) {
-                    if(maze[i][j] < 10) std::cerr << "[" << static_cast<int>(maze[i][j]) << "], ";
-                    else std::cerr << "[" << static_cast<int>(maze[i][j]) << "], ";
-                } else {
-                    if(maze[i][j] < 10) std::cerr << " " << static_cast<int>(maze[i][j]) << ", ";
-                    else std::cerr << static_cast<int>(maze[i][j]) << ", ";
-                }
+	// printout maze
+	std::cerr << std::endl;
+	for(int j = 15; j >= 0; j--) {
+		for(int i = 0; i < 16; i++) {
 
-             
-            }
-            std::cerr << std::endl;
+			if(currentCfg.x == i && currentCfg.y == j) {
+				if(maze[i][j] < 10) std::cerr << "[" << static_cast<int>(maze[i][j]) << "], ";
+				else std::cerr << "[" << static_cast<int>(maze[i][j]) << "], ";
+			} else {
+				if(maze[i][j] < 10) std::cerr << " " << static_cast<int>(maze[i][j]) << ", ";
+				else std::cerr << static_cast<int>(maze[i][j]) << ", ";
+			}
 
-        }
-        std::cerr << std::endl;        
+
+		}
+		std::cerr << std::endl;
+
+	}
+	std::cerr << std::endl;        
 }
 
 // update visualizations in sim
@@ -623,25 +623,25 @@ void visualizeWalls(int i, int j, openCells cell) {
 
 #ifdef REAL
 void mazePrintout() {
-    // printout maze
-        for(int j = 4; j >= 0; j--) {
-            for(int i = 0; i < 5; i++) {
+	// printout maze
+	for(int j = 4; j >= 0; j--) {
+		for(int i = 0; i < 5; i++) {
 
-                if(currentCfg.x == i && currentCfg.y == j) {
-                    Serial.print("[");
-                    Serial.print(maze[i][j]);
-                    Serial.print("], ");
-                } else {
-                    Serial.print(" ");
-                    Serial.print(maze[i][j]);
-                    Serial.print(", ");
-                }
+			if(currentCfg.x == i && currentCfg.y == j) {
+				Serial.print("[");
+				Serial.print(maze[i][j]);
+				Serial.print("], ");
+			} else {
+				Serial.print(" ");
+				Serial.print(maze[i][j]);
+				Serial.print(", ");
+			}
 
 
-            }
-        Serial.println();
-        }
-        Serial.println();
+		}
+		Serial.println();
+	}
+	Serial.println();
 }
 #endif
 
@@ -649,20 +649,25 @@ void mazePrintout() {
 
 
 void runMaze(char goal) {
-    //Serial.print("Start 2");
+	//Serial.print("Start 2");
 
-    int loopCondition = 1;
+	int loopCondition = 1;
 
-    while(loopCondition) {
+	while(loopCondition) {
 
-            pathTaken.push(currentCfg);
+		pathTaken.push(currentCfg);
+#ifdef SIM
+		API::setColor(currentCfg.x, currentCfg.y, 'a');
+#endif
 
-            // Micromouse moves from higher to lower elevations
-            // std::cerr << "[" << currentCfg.x << " " << currentCfg.y << " " << currentCfg.dir << "] -> " << maze[currentCfg.x][currentCfg.y] << std::endl;
-            flowElevation();
-            //end condition
-            if(goal == 'c') {
-                if((currentCfg.x == 7 || currentCfg.x == 8) && (currentCfg.y == 7 || currentCfg.y == 8)) {
+
+
+		// Micromouse moves from higher to lower elevations
+		// std::cerr << "[" << currentCfg.x << " " << currentCfg.y << " " << currentCfg.dir << "] -> " << maze[currentCfg.x][currentCfg.y] << std::endl;
+		flowElevation();
+		//end condition
+		if(goal == 'c') {
+			if((currentCfg.x == 7 || currentCfg.x == 8) && (currentCfg.y == 7 || currentCfg.y == 8)) {
                     loopCondition = 0;
                 }
             }
@@ -738,4 +743,89 @@ void backTrack() {
             move('W');
         }
     }
+}
+
+// TODO
+void speedrun() {
+	 
+    std::queue<configuration> forward;
+    
+    configuration forwardCfg;
+    forwardCfg.x = 0;
+    forwardCfg.y = 0;
+    
+    forward.push(forwardCfg);
+    while(true) {
+
+    	std::cerr << forwardCfg.x << ", " << forwardCfg.y << std::endl;
+
+	if((forwardCfg.x == 7 || forwardCfg.x == 8) && (forwardCfg.y == 7 || forwardCfg.y == 8)) {
+		break;
+	}
+	
+	// copy of checkNeighboringOpen
+	 
+	// For the popped configuration, refer to the global 
+	// walls array instead of checking from the API
+
+
+	int x = forwardCfg.x; // up and down on the array = EW, first term
+	int y = forwardCfg.y; // left and right on the array = NS, second term
+	
+	
+
+	bool openN = walls[x][y].openN;
+	bool openS = walls[x][y].openS;
+	bool openE = walls[x][y].openE;
+	bool openW = walls[x][y].openW;
+
+	//min of the open cells
+	int N = 1337;
+	int S = 1337;
+	int E = 1337;
+	int W = 1337;
+
+	//N = +y
+	//S = -y
+	//E = +x
+	//W = -x
+
+	// filter out unvisited squares too 
+	if(y+1 <= 15 && openN && walls[x][y+1].visited) N = maze[x][y+1];
+	if(y-1 >= 0  && openS && walls[x][y-1].visited) S = maze[x][y-1];
+	if(x+1 <= 15 && openE && walls[x+1][y].visited) E = maze[x+1][y];
+	if(x-1 >= 0  && openW && walls[x-1][y].visited) W = maze[x-1][y];
+
+	// find the min using arraysort
+	int arraySort[4] = {N, S, E, W};
+	std::sort(arraySort, arraySort + 4);
+	int min = arraySort[0];
+
+
+	if(N == min && maze[x][y] == min + 1 && openN) {
+		//move('N');
+		forwardCfg.y += 1;
+		forward.push(forwardCfg);
+		continue;
+	}
+	if(S == min && maze[x][y] == min + 1 && openS) {
+		//move('S');
+		forwardCfg.y -= 1;
+		forward.push(forwardCfg);
+		continue;
+	}
+	if(E == min && maze[x][y] == min + 1 && openE) {
+		//move('E');
+		forwardCfg.x += 1;
+		forward.push(forwardCfg);
+		continue;
+	}
+	if(W == min && maze[x][y] == min + 1 && openW) {
+		//move('W');
+		forwardCfg.x -= 1;
+		forward.push(forwardCfg);
+		continue;
+	}
+
+    }	
 }
