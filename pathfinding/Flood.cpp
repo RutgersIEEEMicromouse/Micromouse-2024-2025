@@ -200,6 +200,8 @@ void flowElevation() {
     //    Serial.println("Begin flow");
     int x = currentCfg.x; // up and down on the array = EW, first term
     int y = currentCfg.y; // left and right on the array = NS, second term
+	
+    walls[x][y].visited = true;
 
     // check if surrounding cells are valid, 
     // pick the lowest out of the open cells,
@@ -233,9 +235,43 @@ void flowElevation() {
     // std::cerr << "Min Cell Calculated: " << min << std::endl;
     
     // move to minimum of open cells (usually presentCellValue - 1)
-    // prefer to move forward without spinning if there are 2 cells with the same value (TODO)
-
     
+    // prefer to move forward without spinning
+    char facing = currentCfg.dir;
+
+    //std::cerr << facing << std::endl;
+    switch(facing) {
+
+        case 'N':
+	    if(N == min && maze[x][y] == min + 1 && openN) {
+		move('N');
+		return;
+	    }
+	    break;
+        case 'S':
+	    if(S == min && maze[x][y] == min + 1 && openS) {
+		move('S');
+		return;
+	    }
+	    break;
+
+        case 'E':
+	    if(E == min && maze[x][y] == min + 1 && openE) {
+		move('E');
+		return;
+	    }
+	    break;
+
+        case 'W':
+	    if(W == min && maze[x][y] == min + 1 && openW) {
+		move('W');
+		return;
+	    }
+            break;
+    }
+
+
+    // std::cerr << "backup" << std::endl;
     // extra parameters for move
     // don't move to higher elevations ever, wait for cell update before moving 
     if(N == min && maze[x][y] == min + 1 && openN) {
@@ -668,9 +704,59 @@ void runMaze(char goal) {
 		//end condition
 		if(goal == 'c') {
 			if((currentCfg.x == 7 || currentCfg.x == 8) && (currentCfg.y == 7 || currentCfg.y == 8)) {
-                    loopCondition = 0;
-                }
-            }
+			    	// set cell as visited
+				walls[currentCfg.x][currentCfg.y].visited = true;
+				
+				// close off other entrances to the maze
+				//  ___ ___
+				// |7,8 8,8|
+				// |       |
+				// |7,7 8,7|
+				// |___ ___|
+				
+				
+				if (!(currentCfg.x == 7 && currentCfg.y == 7)) {			
+					walls[7][6].openN = false;
+					walls[7][7].openS = false; // 7,7
+					walls[6][7].openE = false;
+					walls[7][7].openW = false; // 7,7
+				}
+
+
+				if (!(currentCfg.x == 7 && currentCfg.y == 8)) {			
+
+					walls[7][8].openN = false; // 7,8
+					walls[7][9].openS = false;
+					walls[6][8].openE = false;
+					walls[7][8].openW = false; // 7,8
+				}
+
+				if (!(currentCfg.x == 8 && currentCfg.y == 7)) {			
+					walls[8][6].openN = false;
+					walls[8][7].openS = false; // 8,7
+					walls[8][7].openE = false; // 8,7
+					walls[9][7].openW = false;
+				}
+
+				if (!(currentCfg.x == 8 && currentCfg.y == 8)) {
+					walls[8][8].openN = false; // 8,8
+					walls[8][9].openS = false;
+					walls[8][8].openE = false; // 8,8
+					walls[9][8].openW = false;
+				}		
+
+
+#ifdef SIM			
+				for (int i = 7; i <= 8; i++) {
+					for (int j = 7; j <= 8; j++) {
+						visualizeWalls(i, j, walls[i][j]);
+					}
+				}
+#endif
+
+				loopCondition = 0;
+			}
+		    }
 
 
             // std::cerr << "Walls Array "<< walls[currentCfg.x][currentCfg.y].openN << walls[currentCfg.x][currentCfg.y].openS << walls[currentCfg.x][currentCfg.y].openE << walls[currentCfg.x][currentCfg.y].openW << std::endl;
@@ -689,7 +775,7 @@ void runMaze(char goal) {
                 checkNeigboringOpen(poppedCfg);
             }
 
-            mazePrintout();
+            //mazePrintout();
 
         }
 
@@ -746,19 +832,27 @@ void backTrack() {
 }
 
 // TODO
+// Idea?
+// Break maze into 31x31, 16 cells + 15 inbetween cells
+// Move from each half cell to half cell using Chebyshev distance
+// Refactor move to include cardinal combinations
+
+
 void speedrun() {
-	 
-    std::queue<configuration> forward;
+    bool path[N][N] = {}; // 16x16 array initialized to false, true represents path from start to center
     
+
     configuration forwardCfg;
     forwardCfg.x = 0;
     forwardCfg.y = 0;
     
-    forward.push(forwardCfg);
-    while(true) {
+    
+    path[forwardCfg.x][forwardCfg.y] = true;
 
-    	std::cerr << forwardCfg.x << ", " << forwardCfg.y << std::endl;
+    for (int i = 0; i < 40; i++) {
+	std::cerr << forwardCfg.x << ", " << forwardCfg.y << std::endl;
 
+    	// end when we get to the center
 	if((forwardCfg.x == 7 || forwardCfg.x == 8) && (forwardCfg.y == 7 || forwardCfg.y == 8)) {
 		break;
 	}
@@ -802,30 +896,43 @@ void speedrun() {
 	int min = arraySort[0];
 
 
-	if(N == min && maze[x][y] == min + 1 && openN) {
+	
+	std::cerr << N << ", " << S << ", " << E << ", " << W << std::endl;
+	
+	// Just move along min of visited, doesn't need to be min + 1
+	if(N == min && openN) {
 		//move('N');
-		forwardCfg.y += 1;
-		forward.push(forwardCfg);
+		forwardCfg.y = forwardCfg.y + 1;
+		path[forwardCfg.x][forwardCfg.y] = true;
 		continue;
 	}
-	if(S == min && maze[x][y] == min + 1 && openS) {
+	if(S == min && openS) {
 		//move('S');
-		forwardCfg.y -= 1;
-		forward.push(forwardCfg);
+		forwardCfg.y = forwardCfg.y - 1;
+		path[forwardCfg.x][forwardCfg.y] = true;
 		continue;
 	}
-	if(E == min && maze[x][y] == min + 1 && openE) {
+	if(E == min && openE) {
 		//move('E');
-		forwardCfg.x += 1;
-		forward.push(forwardCfg);
+		forwardCfg.x = forwardCfg.x + 1;
+		path[forwardCfg.x][forwardCfg.y] = true;
 		continue;
 	}
-	if(W == min && maze[x][y] == min + 1 && openW) {
+	if(W == min && openW) {
 		//move('W');
-		forwardCfg.x -= 1;
-		forward.push(forwardCfg);
+		forwardCfg.x = forwardCfg.x - 1;
+		path[forwardCfg.x][forwardCfg.y] = true;
 		continue;
 	}
 
-    }	
+    }
+
+    for(int j = 15; j >= 0; j--) {
+	for(int i = 0; i < 16; i++) {
+            std::cerr << path[i][j] << " ";
+        }
+        std::cerr << std::endl;
+    }
+
+
 }

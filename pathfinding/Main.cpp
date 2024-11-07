@@ -31,18 +31,16 @@ int main(int argc, char* argv[]) {
 
     log(to_string(sizeof(maze)));
     log(to_string(sizeof(walls)));
-
     //// STEP 1: Initial Solve
     initialize();
     runMaze('c');
     backTrack();
 
-   
     for (int run = 0; run < 10; run++) {
-	    speedrun();
 	    runMaze('c');
 	    backTrack();
     }
+    //speedrun();
 }
 
 #endif
