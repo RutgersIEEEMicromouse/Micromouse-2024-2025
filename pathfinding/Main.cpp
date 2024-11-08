@@ -36,11 +36,12 @@ int main(int argc, char* argv[]) {
     runMaze('c');
     backTrack();
 
-    
-    for (int run = 0; run < 10; run++) {
+    for (int run = 0; run < 3; run++) {
 	    runMaze('c');
 	    backTrack();
     }
+
+
     speedrun();
 }
 

@@ -85,7 +85,7 @@ void backTrack();
 
 // TODO
 // converts maze and wall configuration to continuous straight and diagonals
+float calculateH(int x, int y);
 void speedrun();
-
 
 #endif

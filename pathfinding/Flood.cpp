@@ -4,6 +4,7 @@
 using namespace std;
 
 // "Definition checked against [extern] declaration"
+// maze heuristic
 char maze[N][N] = 
 {{14, 13, 12, 11, 10, 9, 8, 7, 7, 8, 9, 10, 11, 12, 13, 14},
  {13, 12, 11, 10,  9, 8, 7, 6, 6, 7, 8,  9, 10, 11, 12, 13},
@@ -21,7 +22,32 @@ char maze[N][N] =
  {12, 11, 10,  9,  8, 7, 6, 5, 5, 6, 7,  8,  9, 10, 11, 12},   
  {13, 12, 11, 10,  9, 8, 7, 6, 6, 7, 8,  9, 10, 11, 12, 13},  
  {14, 13, 12, 11, 10, 9, 8, 7, 7, 8, 9, 10, 11, 12, 13, 14}};
- 
+
+/*
+// chebyshev
+char maze[N][N] = 
+{{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
+ {7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7},
+ {7, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7},   
+ {7, 6, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 7},   
+ {7, 6, 5, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7},   
+ {7, 6, 5, 4, 3, 2, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7},   
+ {7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 2, 3, 4, 5, 6, 7},   
+ {7, 6, 5, 4, 3, 2, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7},   
+ {7, 6, 5, 4, 3, 2, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7},   
+ {7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 2, 3, 4, 5, 6, 7},   
+ {7, 6, 5, 4, 3, 2, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7},   
+ {7, 6, 5, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7},   
+ {7, 6, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 7},   
+ {7, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7},   
+ {7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7},  
+ {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7}};
+*/
+
+
+
+
+
 std::stack<configuration> cellStack;
 openCells walls[N][N];
 configuration currentCfg;
@@ -374,6 +400,10 @@ void checkNeigboringOpen(configuration poppedCfg) {
             pushCfg.y += 1;
         }
     }
+	
+
+
+
 
     // std::cerr << "stack size: " << cellStack.size();
 	
@@ -707,6 +737,9 @@ void runMaze(char goal) {
 			    	// set cell as visited
 				walls[currentCfg.x][currentCfg.y].visited = true;
 				
+				// update walls in center rq
+    				openCells checkOpen = checkOpenCells(currentCfg);
+
 				// close off other entrances to the maze
 				//  ___ ___
 				// |7,8 8,8|
@@ -745,7 +778,7 @@ void runMaze(char goal) {
 					walls[9][8].openW = false;
 				}		
 
-
+				
 #ifdef SIM			
 				for (int i = 7; i <= 8; i++) {
 					for (int j = 7; j <= 8; j++) {
@@ -837,6 +870,46 @@ void backTrack() {
 // Move from each half cell to half cell using Chebyshev distance
 // Refactor move to include cardinal combinations
 
+struct Node
+{
+    int y; // x, y in highResMaze
+    int x;
+    int parentDX; // how to get to parent node along X
+    int parentDY; // how to get to parent node along Y
+    float gCost; // +0 cost if moving in straight line from parent's parent, +1 cost if not
+    float hCost; // derive from maze as avg(maze[floor(x/2)], maze[ceil(x/2)]
+    float fCost; // g+h
+};
+
+inline bool operator < (const Node& lhs, const Node& rhs)
+{//We need to overload "<" to put our struct into a set
+    return lhs.fCost < rhs.fCost;
+}
+
+#include<cmath>
+float calculateH(int x, int y) {
+	// if the H is on the 16x16 square, (1,1), take it straight from the 16x16 (0,0)
+	// -> e.g. (1,3) on high res corresponds to (0,1)
+
+	// if the H is between two squares, take the average from the two adjacent
+	// -> e.g. (1,2) on high res is between (0,0) and (0,1)
+	
+	// 16x16 to 33x33 is 2n+1, so 33x33 to 16x16 is (n-1)/2
+	int x1 = floor((x-1)/2.0);
+	int y1 = floor((y-1)/2.0);
+	int x2 = ceil((x-1)/2.0);
+	int y2 = ceil((y-1)/2.0);
+	
+	float probeMaze1 = static_cast<float>(maze[x1][y1]); 
+	float probeMaze2 = static_cast<float>(maze[x2][y2]);
+
+
+	float H = (probeMaze1 + probeMaze2) / 2.0; 
+		
+	return H;
+
+}
+
 void speedrun() {
     bool highResMaze[33][33] = {}; // 33x33 array initialized to false, true represents obstacle
     				   // (15,15) is the middle of the bottom left square
@@ -883,22 +956,29 @@ void speedrun() {
 			highResMaze[highResX - 1][highResY] = true;
 			highResMaze[highResX - 1][highResY-1] = true; highResMaze[highResX - 1][highResY+1] = true;
 		}
+		
+		// temporary measure to not attempt to solve with unvisited cells
+		if(!cell.visited) {
+			highResMaze[highResX-1][highResY-1] = true; highResMaze[highResX][highResY-1] = true; highResMaze[highResX+1][highResY-1] = true;
+			highResMaze[highResX-1][highResY] = true; highResMaze[highResX][highResY] = true; highResMaze[highResX+1][highResY] = true;
+			highResMaze[highResX-1][highResY+1] = true; highResMaze[highResX][highResY+1] = true; highResMaze[highResX+1][highResY+1] = true;
+		}
 
 	}
     }
 
+	
     for(int j = 32; j >= 0; j--) {
 	for(int i = 0; i < 33; i++) {
             std::cerr << highResMaze[i][j] << " ";
         }
         std::cerr << std::endl;
     }
-	
 
 
-
-
-
-
+    // straight line A*
+    
 
 }
+
+
