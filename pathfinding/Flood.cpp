@@ -833,106 +833,72 @@ void backTrack() {
 
 // TODO
 // Idea?
-// Break maze into 31x31, 16 cells + 15 inbetween cells
+// Break maze into 33x33, 16 cells + 15 inbetween cells, also + 2 inbetween cells for the walls
 // Move from each half cell to half cell using Chebyshev distance
 // Refactor move to include cardinal combinations
 
-
 void speedrun() {
-    bool path[N][N] = {}; // 16x16 array initialized to false, true represents path from start to center
+    bool highResMaze[33][33] = {}; // 33x33 array initialized to false, true represents obstacle
+    				   // (15,15) is the middle of the bottom left square
+				   // (17,17) is the middle of the top right square
     
-
-    configuration forwardCfg;
-    forwardCfg.x = 0;
-    forwardCfg.y = 0;
+    for(int i = 0; i < 33; i++) {
+        highResMaze[i][0] = true; // move along south wall
+        highResMaze[i][32] = true; // move along north wall
+        highResMaze[0][i] = true; // move along west wall
+        highResMaze[32][i] = true; // move along east wall
+    }
     
+    // populate the high res maze from existing walls array
+    // -> the cell at (0,0) is (1,1) in highResMaze
+    // x = 2i+1, y = 2j + 1
     
-    path[forwardCfg.x][forwardCfg.y] = true;
+    // -> the wall to the north of (0, 0) would be (1, 2)
+    // -> also set the ones to the left and right (0, 2) and (2, 2)
 
-    for (int i = 0; i < 40; i++) {
-	std::cerr << forwardCfg.x << ", " << forwardCfg.y << std::endl;
+    //N = +y
+    //S = -y
+    //E = +x
+    //W = -x
 
-    	// end when we get to the center
-	if((forwardCfg.x == 7 || forwardCfg.x == 8) && (forwardCfg.y == 7 || forwardCfg.y == 8)) {
-		break;
+    for (int i = 0; i < 16; i++) {
+    	for (int j = 0; j < 16; j++) {
+		int highResX = 2*i+1;
+		int highResY = 2*j+1;
+			
+		openCells cell = walls[i][j];
+		if(!cell.openN) {
+			highResMaze[highResX][highResY + 1] = true; // straight north
+			highResMaze[highResX-1][highResY + 1] = true; highResMaze[highResX+1][highResY + 1] = true; // adjacent diagonals
+		}
+		if(!cell.openS) {
+			highResMaze[highResX][highResY - 1] = true;
+			highResMaze[highResX-1][highResY - 1] = true; highResMaze[highResX+1][highResY - 1] = true;
+		}
+		if(!cell.openE) {
+			highResMaze[highResX + 1][highResY] = true;
+			highResMaze[highResX + 1][highResY-1] = true; highResMaze[highResX + 1][highResY+1] = true;
+		}
+		if(!cell.openW) {
+			highResMaze[highResX - 1][highResY] = true;
+			highResMaze[highResX - 1][highResY-1] = true; highResMaze[highResX - 1][highResY+1] = true;
+		}
+
 	}
-	
-	// copy of checkNeighboringOpen
-	 
-	// For the popped configuration, refer to the global 
-	// walls array instead of checking from the API
-
-
-	int x = forwardCfg.x; // up and down on the array = EW, first term
-	int y = forwardCfg.y; // left and right on the array = NS, second term
-	
-	
-
-	bool openN = walls[x][y].openN;
-	bool openS = walls[x][y].openS;
-	bool openE = walls[x][y].openE;
-	bool openW = walls[x][y].openW;
-
-	//min of the open cells
-	int N = 1337;
-	int S = 1337;
-	int E = 1337;
-	int W = 1337;
-
-	//N = +y
-	//S = -y
-	//E = +x
-	//W = -x
-
-	// filter out unvisited squares too 
-	if(y+1 <= 15 && openN && walls[x][y+1].visited) N = maze[x][y+1];
-	if(y-1 >= 0  && openS && walls[x][y-1].visited) S = maze[x][y-1];
-	if(x+1 <= 15 && openE && walls[x+1][y].visited) E = maze[x+1][y];
-	if(x-1 >= 0  && openW && walls[x-1][y].visited) W = maze[x-1][y];
-
-	// find the min using arraysort
-	int arraySort[4] = {N, S, E, W};
-	std::sort(arraySort, arraySort + 4);
-	int min = arraySort[0];
-
-
-	
-	std::cerr << N << ", " << S << ", " << E << ", " << W << std::endl;
-	
-	// Just move along min of visited, doesn't need to be min + 1
-	if(N == min && openN) {
-		//move('N');
-		forwardCfg.y = forwardCfg.y + 1;
-		path[forwardCfg.x][forwardCfg.y] = true;
-		continue;
-	}
-	if(S == min && openS) {
-		//move('S');
-		forwardCfg.y = forwardCfg.y - 1;
-		path[forwardCfg.x][forwardCfg.y] = true;
-		continue;
-	}
-	if(E == min && openE) {
-		//move('E');
-		forwardCfg.x = forwardCfg.x + 1;
-		path[forwardCfg.x][forwardCfg.y] = true;
-		continue;
-	}
-	if(W == min && openW) {
-		//move('W');
-		forwardCfg.x = forwardCfg.x - 1;
-		path[forwardCfg.x][forwardCfg.y] = true;
-		continue;
-	}
-
     }
 
-    for(int j = 15; j >= 0; j--) {
-	for(int i = 0; i < 16; i++) {
-            std::cerr << path[i][j] << " ";
+    for(int j = 32; j >= 0; j--) {
+	for(int i = 0; i < 33; i++) {
+            std::cerr << highResMaze[i][j] << " ";
         }
         std::cerr << std::endl;
     }
+	
+
+
+
+
+
 
 
 }
