@@ -1030,7 +1030,7 @@ void speedrun() {
 	while(!openSet.empty()) {
 		Node current = openSet.top();
 
-		std::cerr << "(" << current.X << ", " << current.Y << ") ";
+		// std::cerr << "(" << current.X << ", " << current.Y << ") ";
 
 		openSet.pop();
 		openSetCoords.erase({current.X, current.Y});
@@ -1055,16 +1055,27 @@ void speedrun() {
 			// Print the path
 			std::cerr << "Path: ";
 			for (const auto& coord : path) {
-				std::cerr << "(" << coord.first << ", " << coord.second << ") ";
+				std::cerr << "(" << coord.first << ", " << coord.second << ") " << std::endl;
 			}
 			std::cerr << std::endl;
 			
+					
+	
+
+			// convert path to straights and turns
+			std::vector<std::pair<char, uint8_t>> commands;
+
 			
 
+			for (const auto& coord : path) {
+				
 
-			// convert path to straights and turns:
+
+				std::cerr << "(" << coord.first << ", " << coord.second << ") " << std::endl;
+			}
 
 
+			
 
 
 
