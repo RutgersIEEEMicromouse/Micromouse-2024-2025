@@ -28,21 +28,24 @@ int main(int argc, char* argv[]) {
 
     //Modified Flood Fill
     //https://marsuniversity.github.io/ece387/FloodFill.pdf
+	
+    //log(to_string(sizeof(maze)));
+    //log(to_string(sizeof(walls)));
+    
 
-    log(to_string(sizeof(maze)));
-    log(to_string(sizeof(walls)));
     //// STEP 1: Initial Solve
     initialize();
     runMaze('c');
     backTrack();
 
-    for (int run = 0; run < 3; run++) {
+    for (int run = 0; run < 5; run++) {
 	    runMaze('c');
 	    backTrack();
     }
 
 
     speedrun();
+
 }
 
 #endif

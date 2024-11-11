@@ -92,6 +92,15 @@ void initialize() {
         walls[i][15].openN = false; // move along north wall
         walls[0][i].openW = false; // move along west wall
         walls[15][i].openE = false; // move along east wall
+	
+#ifdef SIM			
+	visualizeWalls(i, 0, walls[i][0]);
+	visualizeWalls(i, 15, walls[i][15]);
+	visualizeWalls(0, i, walls[0][i]);
+	visualizeWalls(15, i, walls[15][i]);
+#endif
+
+
     }
 
 #ifdef REAL
@@ -221,7 +230,8 @@ openCells checkOpenCells(configuration currentCfg) {
 
 void flowElevation() {
     // given the maze, configuration, and wall checks, move to lower elevation until we hit 0
-    // prioritize movements without turns if possible (TODO)
+    // prioritize movements without turns if possible (DONE)
+    // prioritize movements to unvisited first
 
     //    Serial.println("Begin flow");
     int x = currentCfg.x; // up and down on the array = EW, first term
@@ -261,7 +271,14 @@ void flowElevation() {
     // std::cerr << "Min Cell Calculated: " << min << std::endl;
     
     // move to minimum of open cells (usually presentCellValue - 1)
-    
+
+    bool Nvisited = walls[x][y+1].visited;
+    bool Svisited = walls[x][y-1].visited;
+    bool Evisited = walls[x+1][y].visited;
+    bool Wvisited = walls[x-1][y].visited;
+
+
+
     // prefer to move forward without spinning
     char facing = currentCfg.dir;
 
@@ -269,27 +286,27 @@ void flowElevation() {
     switch(facing) {
 
         case 'N':
-	    if(N == min && maze[x][y] == min + 1 && openN) {
+	    if(N == min && maze[x][y] == min + 1 && openN && !Nvisited) {
 		move('N');
 		return;
 	    }
 	    break;
         case 'S':
-	    if(S == min && maze[x][y] == min + 1 && openS) {
+	    if(S == min && maze[x][y] == min + 1 && openS && !Svisited) {
 		move('S');
 		return;
 	    }
 	    break;
 
         case 'E':
-	    if(E == min && maze[x][y] == min + 1 && openE) {
+	    if(E == min && maze[x][y] == min + 1 && openE && !Evisited) {
 		move('E');
 		return;
 	    }
 	    break;
 
         case 'W':
-	    if(W == min && maze[x][y] == min + 1 && openW) {
+	    if(W == min && maze[x][y] == min + 1 && openW && !Svisited) {
 		move('W');
 		return;
 	    }
@@ -300,6 +317,24 @@ void flowElevation() {
     // std::cerr << "backup" << std::endl;
     // extra parameters for move
     // don't move to higher elevations ever, wait for cell update before moving 
+    if(N == min && maze[x][y] == min + 1 && openN && !Nvisited) {
+        move('N');
+        return;
+    }
+    if(S == min && maze[x][y] == min + 1 && openS && !Svisited) {
+        move('S');
+        return;
+    }
+    if(E == min && maze[x][y] == min + 1 && openE && !Evisited) {
+        move('E');
+        return;
+    }
+    if(W == min && maze[x][y] == min + 1 && openW && !Wvisited) {
+        move('W');
+        return;
+    }
+
+    // backup backup 2
     if(N == min && maze[x][y] == min + 1 && openN) {
         move('N');
         return;
@@ -316,6 +351,8 @@ void flowElevation() {
         move('W');
         return;
     }
+
+
     return;
 }
 
@@ -734,11 +771,11 @@ void runMaze(char goal) {
 		//end condition
 		if(goal == 'c') {
 			if((currentCfg.x == 7 || currentCfg.x == 8) && (currentCfg.y == 7 || currentCfg.y == 8)) {
-			    	// set cell as visited
+				// set cell as visited
 				walls[currentCfg.x][currentCfg.y].visited = true;
-				
+
 				// update walls in center rq
-    				openCells checkOpen = checkOpenCells(currentCfg);
+				openCells checkOpen = checkOpenCells(currentCfg);
 
 				// close off other entrances to the maze
 				//  ___ ___
@@ -746,8 +783,8 @@ void runMaze(char goal) {
 				// |       |
 				// |7,7 8,7|
 				// |___ ___|
-				
-				
+
+
 				if (!(currentCfg.x == 7 && currentCfg.y == 7)) {			
 					walls[7][6].openN = false;
 					walls[7][7].openS = false; // 7,7
@@ -778,7 +815,7 @@ void runMaze(char goal) {
 					walls[9][8].openW = false;
 				}		
 
-				
+
 #ifdef SIM			
 				for (int i = 7; i <= 8; i++) {
 					for (int j = 7; j <= 8; j++) {
@@ -789,79 +826,79 @@ void runMaze(char goal) {
 
 				loopCondition = 0;
 			}
-		    }
+		}
 
 
-            // std::cerr << "Walls Array "<< walls[currentCfg.x][currentCfg.y].openN << walls[currentCfg.x][currentCfg.y].openS << walls[currentCfg.x][currentCfg.y].openE << walls[currentCfg.x][currentCfg.y].openW << std::endl;
+		// std::cerr << "Walls Array "<< walls[currentCfg.x][currentCfg.y].openN << walls[currentCfg.x][currentCfg.y].openS << walls[currentCfg.x][currentCfg.y].openE << walls[currentCfg.x][currentCfg.y].openW << std::endl;
 
-            //1) Push the current cell location onto the stack
-            cellStack.push(currentCfg);
+		//1) Push the current cell location onto the stack
+		cellStack.push(currentCfg);
 
-            //2) Repeat while stack is not empty        
-            while(!cellStack.empty()) {
-                //pull the cell location from the stack
-                poppedCfg = cellStack.top();
-                cellStack.pop();
+		//2) Repeat while stack is not empty        
+		while(!cellStack.empty()) {
+			//pull the cell location from the stack
+			poppedCfg = cellStack.top();
+			cellStack.pop();
 
-                // std::cerr << poppedCfg.x << " " << poppedCfg.y << " " << poppedCfg.dir << std::endl;
+			// std::cerr << poppedCfg.x << " " << poppedCfg.y << " " << poppedCfg.dir << std::endl;
 
-                checkNeigboringOpen(poppedCfg);
-            }
+			checkNeigboringOpen(poppedCfg);
+		}
 
-            //mazePrintout();
+		//mazePrintout();
 
-        }
+	}
 
 #ifdef REAL
-    // wait for button push for storing maze info into EEPROM
-    while(1) {
-        delay(300);
-        if(digitalRead(memory_button)) {
-            saveMazeToEEPROM(maze);
-            saveWallsToEEPROM(walls);
-            Serial.println("saved");
-            digitalWrite(LED_BUILTIN, LOW);
-            delay(200);
-            digitalWrite(LED_BUILTIN, HIGH);
-            delay(200);
-            digitalWrite(LED_BUILTIN, LOW);
-            delay(200);
-            digitalWrite(LED_BUILTIN, HIGH);
-        }
+	// wait for button push for storing maze info into EEPROM
+	while(1) {
+		delay(300);
+		if(digitalRead(memory_button)) {
+			saveMazeToEEPROM(maze);
+			saveWallsToEEPROM(walls);
+			Serial.println("saved");
+			digitalWrite(LED_BUILTIN, LOW);
+			delay(200);
+			digitalWrite(LED_BUILTIN, HIGH);
+			delay(200);
+			digitalWrite(LED_BUILTIN, LOW);
+			delay(200);
+			digitalWrite(LED_BUILTIN, HIGH);
+		}
 
-    }
+	}
 
 #endif
 
 }
 
-    //N = +y
-    //S = -y
-    //E = +x
-    //W = -x
+//N = +y
+//S = -y
+//E = +x
+//W = -x
 
 void backTrack() {
-    while(!pathTaken.empty()) {
-        int x = pathTaken.top().x;
-        int y = pathTaken.top().y;
-        pathTaken.pop();
+	while(!pathTaken.empty()) {
+		int x = pathTaken.top().x;
+		int y = pathTaken.top().y;
+		pathTaken.pop();
 
-        int xDiff = x - currentCfg.x;
-        int yDiff = y - currentCfg.y;
+		int xDiff = x - currentCfg.x;
+		int yDiff = y - currentCfg.y;
 
-        if(yDiff == 1) {
-            move('N');
-        }
-        if(yDiff == -1) {
-            move('S');
-        }
-        if(xDiff == 1) {
-            move('E');
-        }
-        if(xDiff == -1) {
-            move('W');
-        }
-    }
+		if(yDiff == 1) {
+			move('N');
+		}
+		if(yDiff == -1) {
+			move('S');
+		}
+		if(xDiff == 1) {
+			move('E');
+		}
+		if(xDiff == -1) {
+			move('W');
+		}
+	}
 }
 
 // TODO
@@ -869,115 +906,215 @@ void backTrack() {
 // Break maze into 33x33, 16 cells + 15 inbetween cells, also + 2 inbetween cells for the walls
 // Move from each half cell to half cell using Chebyshev distance
 // Refactor move to include cardinal combinations
-
-struct Node
-{
-    int y; // x, y in highResMaze
-    int x;
-    int parentDX; // how to get to parent node along X
-    int parentDY; // how to get to parent node along Y
-    float gCost; // +0 cost if moving in straight line from parent's parent, +1 cost if not
-    float hCost; // derive from maze as avg(maze[floor(x/2)], maze[ceil(x/2)]
-    float fCost; // g+h
-};
-
-inline bool operator < (const Node& lhs, const Node& rhs)
-{//We need to overload "<" to put our struct into a set
-    return lhs.fCost < rhs.fCost;
-}
-
-#include<cmath>
-float calculateH(int x, int y) {
-	// if the H is on the 16x16 square, (1,1), take it straight from the 16x16 (0,0)
-	// -> e.g. (1,3) on high res corresponds to (0,1)
-
-	// if the H is between two squares, take the average from the two adjacent
-	// -> e.g. (1,2) on high res is between (0,0) and (0,1)
-	
-	// 16x16 to 33x33 is 2n+1, so 33x33 to 16x16 is (n-1)/2
-	int x1 = floor((x-1)/2.0);
-	int y1 = floor((y-1)/2.0);
-	int x2 = ceil((x-1)/2.0);
-	int y2 = ceil((y-1)/2.0);
-	
-	float probeMaze1 = static_cast<float>(maze[x1][y1]); 
-	float probeMaze2 = static_cast<float>(maze[x2][y2]);
-
-
-	float H = (probeMaze1 + probeMaze2) / 2.0; 
-		
-	return H;
-
-}
-
 void speedrun() {
-    bool highResMaze[33][33] = {}; // 33x33 array initialized to false, true represents obstacle
-    				   // (15,15) is the middle of the bottom left square
-				   // (17,17) is the middle of the top right square
-    
-    for(int i = 0; i < 33; i++) {
-        highResMaze[i][0] = true; // move along south wall
-        highResMaze[i][32] = true; // move along north wall
-        highResMaze[0][i] = true; // move along west wall
-        highResMaze[32][i] = true; // move along east wall
-    }
-    
-    // populate the high res maze from existing walls array
-    // -> the cell at (0,0) is (1,1) in highResMaze
-    // x = 2i+1, y = 2j + 1
-    
-    // -> the wall to the north of (0, 0) would be (1, 2)
-    // -> also set the ones to the left and right (0, 2) and (2, 2)
+	bool highResMaze[33][33] = {}; // 33x33 array initialized to false, true represents obstacle
+	// (15,15) is the middle of the bottom left square
+	// (17,17) is the middle of the top right square
 
-    //N = +y
-    //S = -y
-    //E = +x
-    //W = -x
-
-    for (int i = 0; i < 16; i++) {
-    	for (int j = 0; j < 16; j++) {
-		int highResX = 2*i+1;
-		int highResY = 2*j+1;
-			
-		openCells cell = walls[i][j];
-		if(!cell.openN) {
-			highResMaze[highResX][highResY + 1] = true; // straight north
-			highResMaze[highResX-1][highResY + 1] = true; highResMaze[highResX+1][highResY + 1] = true; // adjacent diagonals
-		}
-		if(!cell.openS) {
-			highResMaze[highResX][highResY - 1] = true;
-			highResMaze[highResX-1][highResY - 1] = true; highResMaze[highResX+1][highResY - 1] = true;
-		}
-		if(!cell.openE) {
-			highResMaze[highResX + 1][highResY] = true;
-			highResMaze[highResX + 1][highResY-1] = true; highResMaze[highResX + 1][highResY+1] = true;
-		}
-		if(!cell.openW) {
-			highResMaze[highResX - 1][highResY] = true;
-			highResMaze[highResX - 1][highResY-1] = true; highResMaze[highResX - 1][highResY+1] = true;
-		}
-		
-		// temporary measure to not attempt to solve with unvisited cells
-		if(!cell.visited) {
-			highResMaze[highResX-1][highResY-1] = true; highResMaze[highResX][highResY-1] = true; highResMaze[highResX+1][highResY-1] = true;
-			highResMaze[highResX-1][highResY] = true; highResMaze[highResX][highResY] = true; highResMaze[highResX+1][highResY] = true;
-			highResMaze[highResX-1][highResY+1] = true; highResMaze[highResX][highResY+1] = true; highResMaze[highResX+1][highResY+1] = true;
-		}
-
-	}
-    }
-
-	
-    for(int j = 32; j >= 0; j--) {
 	for(int i = 0; i < 33; i++) {
-            std::cerr << highResMaze[i][j] << " ";
-        }
-        std::cerr << std::endl;
-    }
+		highResMaze[i][0] = true; // move along south wall
+		highResMaze[i][32] = true; // move along north wall
+		highResMaze[0][i] = true; // move along west wall
+		highResMaze[32][i] = true; // move along east wall
+	}
+
+	// populate the high res maze from existing walls array
+	// -> the cell at (0,0) is (1,1) in highResMaze
+	// x = 2i+1, y = 2j + 1
+
+	// -> the wall to the north of (0, 0) would be (1, 2)
+	// -> also set the ones to the left and right (0, 2) and (2, 2)
+
+	//N = +y
+	//S = -y
+	//E = +x
+	//W = -x
+
+	for (int i = 0; i < 16; i++) {
+		for (int j = 0; j < 16; j++) {
+			int highResX = 2*i+1;
+			int highResY = 2*j+1;
+
+			openCells cell = walls[i][j];
+			if(!cell.openN) {
+				highResMaze[highResX][highResY + 1] = true; // straight north
+				highResMaze[highResX-1][highResY + 1] = true; highResMaze[highResX+1][highResY + 1] = true; // adjacent diagonals
+			}
+			if(!cell.openS) {
+				highResMaze[highResX][highResY - 1] = true;
+				highResMaze[highResX-1][highResY - 1] = true; highResMaze[highResX+1][highResY - 1] = true;
+			}
+			if(!cell.openE) {
+				highResMaze[highResX + 1][highResY] = true;
+				highResMaze[highResX + 1][highResY-1] = true; highResMaze[highResX + 1][highResY+1] = true;
+			}
+			if(!cell.openW) {
+				highResMaze[highResX - 1][highResY] = true;
+				highResMaze[highResX - 1][highResY-1] = true; highResMaze[highResX - 1][highResY+1] = true;
+			}
+
+			// temporary measure to not attempt to solve with unvisited cells
+			if(!cell.visited) {
+				highResMaze[highResX-1][highResY-1] = true; highResMaze[highResX][highResY-1] = true; highResMaze[highResX+1][highResY-1] = true;
+				highResMaze[highResX-1][highResY] = true; highResMaze[highResX][highResY] = true; highResMaze[highResX+1][highResY] = true;
+				highResMaze[highResX-1][highResY+1] = true; highResMaze[highResX][highResY+1] = true; highResMaze[highResX+1][highResY+1] = true;
+			}
+
+		}
+	}
 
 
-    // straight line A*
-    
+	for(int j = 32; j >= 0; j--) {
+		for(int i = 0; i < 33; i++) {
+			std::cerr << highResMaze[i][j] << " ";
+		}
+		std::cerr << std::endl;
+	}
+
+
+	// straight line A*
+	Node highResMazeNode[33][33];
+
+	// update nodes, don't need to do outer walls
+	for (int i = 1; i < 33-1; i++) {
+		for (int j = 1; j < 33-1; j++) {
+			highResMazeNode[i][j].X = i;
+			highResMazeNode[i][j].Y = j;
+			highResMazeNode[i][j].hCost = calculateH(i, j);
+		}
+	}
+	
+	// (start point "comes from" the node behind it)
+	highResMazeNode[1][1].parentX = 1;
+	highResMazeNode[1][1].parentX = 0;
+
+	//N = +y
+	//S = -y
+	//E = +x
+	//W = -x
+
+
+	// Possible movements: cardinal and diagonal
+	std::vector<std::pair<int, int>> directions = {
+		{ 0,  1},  // Up
+		{ 0, -1},  // Down
+		{-1,  0},  // Left
+		{ 1,  0},  // Right
+		{-1,  1},  // Top-left
+		{ 1,  1},  // Top-right
+		{-1, -1},  // Bottom-left
+		{ 1, -1}   // Bottom-right
+	};
+
+
+	// initialize A* datatypes
+
+	// Min-heap priority queue using Node's overloaded operator>
+	std::priority_queue<Node, std::vector<Node>, std::greater<Node>> openSet;
+	// set to check if node is in open set, since checking in min heap is inefficient
+	std::set<std::pair<int, int>> openSetCoords;
+
+
+	// set f and g costs for start 
+	highResMazeNode[1][1].gCost = 0;
+	highResMazeNode[1][1].fCost = highResMazeNode[1][1].gCost + highResMazeNode[1][1].hCost; 
+
+
+	// start adding and removing stuff from open set and repeat
+
+	// add start node to open set
+	openSet.push(highResMazeNode[1][1]);
+	openSetCoords.insert({1, 1});
+	
+
+	while(!openSet.empty()) {
+		Node current = openSet.top();
+
+		std::cerr << "(" << current.X << ", " << current.Y << ") ";
+
+		openSet.pop();
+		openSetCoords.erase({current.X, current.Y});
+		
+		// reconstruct path if current is in center
+		if((current.X >= 15 && current.X <= 17) && (current.Y >= 15 && current.Y <= 17)) {
+			std::cerr << "reconstruct path" << std::endl;
+
+			// essentially a dynamic array with <int, int> datatype
+			std::vector<std::pair<int, int>> path;
+			
+			while (!(current.X == 1 && current.Y == 1)) {
+				// adds backtracked node to end of list
+				path.push_back({current.X, current.Y});
+				current = highResMazeNode[current.parentX][current.parentY];
+
+			}
+
+			// reverse list to start from beginning
+			std::reverse(path.begin(), path.end());
+
+			// Print the path
+			std::cerr << "Path: ";
+			for (const auto& coord : path) {
+				std::cerr << "(" << coord.first << ", " << coord.second << ") ";
+			}
+			std::cerr << std::endl;
+			
+			
+
+
+			// convert path to straights and turns:
+
+
+
+
+
+
+			return;
+	    	}
+
+
+		
+		// add neighbors of current to open set
+		// Iterate over movements
+	        for (const auto& direction : directions) {
+	            int newX = current.X + direction.first;
+	            int newY = current.Y + direction.second;
+
+		    // if obstacle, continue
+		    if(highResMaze[newX][newY]) continue;
+
+		    // increase cost if there is a direction change
+		    int currentNodeDirectionX = highResMazeNode[current.X][current.Y].X - highResMazeNode[current.X][current.Y].parentX;  
+		    int currentNodeDirectionY = highResMazeNode[current.X][current.Y].X - highResMazeNode[current.X][current.Y].parentY; 
+		    
+		    bool sameDirection = (currentNodeDirectionX == direction.first) && (currentNodeDirectionY == direction.second);
+		    
+		    
+		    float tentative_gCost = highResMazeNode[current.X][current.Y].gCost;
+
+		    if(!sameDirection) {
+			tentative_gCost += 5;
+		    }
+		    
+		    // if path to neighbor is better than stored, update it
+		    if (tentative_gCost < highResMazeNode[newX][newY].gCost) {
+			highResMazeNode[newX][newY].parentX = current.X;
+			highResMazeNode[newX][newY].parentY = current.Y;
+			
+			highResMazeNode[newX][newY].gCost = tentative_gCost;
+			highResMazeNode[newX][newY].fCost = tentative_gCost + calculateH(newX, newY);
+			
+			// .find returns .end() if it's not in open set
+			// if not in open set, add it to openSet
+			if (openSetCoords.find({newX, newY}) == openSetCoords.end()) {
+				openSet.push(highResMazeNode[newX][newY]);
+				openSetCoords.insert({newX, newY});
+			}
+		    }
+		}
+	}
+	std::cerr << "failure" << std::endl;
+	return;
 
 }
 

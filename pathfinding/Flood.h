@@ -83,9 +83,63 @@ void mazePrintout();
 void runMaze(char goal);
 void backTrack();
 
+
+
+
+
 // TODO
 // converts maze and wall configuration to continuous straight and diagonals
-float calculateH(int x, int y);
+#include<cmath>
+#include<queue>
+#include<vector>
+#include<set>
+
+//float calculateH(int x, int y);
 void speedrun();
+
+
+
+struct Node
+{
+    int X; // node's X
+    int Y; // node's Y
+    int parentX; // parent node's X
+    int parentY; // parent node's Y
+    float gCost; // +0 cost if moving in straight line from parent's parent, +1 cost if not
+    float hCost; // derive from maze as avg(maze[floor(x/2)], maze[ceil(x/2)]
+    float fCost; // g+h
+
+    // Initialize with unknown parent, infinite cost
+    Node() : parentX(-1), parentY(-1), gCost(1337), fCost(1337) {}
+
+    // Overload the less-than operator for priority queue
+    bool operator>(const Node& other) const {
+        return fCost > other.fCost;
+    }
+};
+
+
+static float calculateH(int x, int y) {
+	// if the H is on the 16x16 square, (1,1), take it straight from the 16x16 (0,0)
+	// -> e.g. (1,3) on high res corresponds to (0,1)
+
+	// if the H is between two squares, take the average from the two adjacent
+	// -> e.g. (1,2) on high res is between (0,0) and (0,1)
+	
+	// 16x16 to 33x33 is 2n+1, so 33x33 to 16x16 is (n-1)/2
+	int x1 = floor((x-1)/2.0);
+	int y1 = floor((y-1)/2.0);
+	int x2 = ceil((x-1)/2.0);
+	int y2 = ceil((y-1)/2.0);
+	
+	float probeMaze1 = static_cast<float>(maze[x1][y1]); 
+	float probeMaze2 = static_cast<float>(maze[x2][y2]);
+
+
+	float H = (probeMaze1 + probeMaze2) / 2.0; 
+		
+	return H;
+
+}
 
 #endif
