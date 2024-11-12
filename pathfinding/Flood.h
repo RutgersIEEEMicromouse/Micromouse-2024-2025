@@ -93,6 +93,8 @@ void backTrack();
 #include<queue>
 #include<vector>
 #include<set>
+#include<cstdint>
+#include<map>
 
 //float calculateH(int x, int y);
 void speedrun();

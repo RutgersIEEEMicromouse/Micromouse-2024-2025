@@ -306,7 +306,7 @@ void flowElevation() {
 	    break;
 
         case 'W':
-	    if(W == min && maze[x][y] == min + 1 && openW && !Svisited) {
+	    if(W == min && maze[x][y] == min + 1 && openW && !Wvisited) {
 		move('W');
 		return;
 	    }
@@ -1048,38 +1048,148 @@ void speedrun() {
 				current = highResMazeNode[current.parentX][current.parentY];
 
 			}
+			
+			// add beginning node
+			path.push_back({1, 1});
 
+			// add direction node for start
+			path.push_back({1, 0});
+
+			
 			// reverse list to start from beginning
 			std::reverse(path.begin(), path.end());
-
+			
 			// Print the path
 			std::cerr << "Path: ";
 			for (const auto& coord : path) {
 				std::cerr << "(" << coord.first << ", " << coord.second << ") " << std::endl;
 			}
 			std::cerr << std::endl;
-			
 					
 	
 
 			// convert path to straights and turns
 			std::vector<std::pair<char, uint8_t>> commands;
+			
+			// Dictionary (map) of directions to angles
+			std::map<std::pair<int, int>, double> directionAngles = {
+				{{ 0,  1}, 0.0},      // Up
+				{{ 0, -1}, 180.0},    // Down
+				{{-1,  0}, 270.0},    // Left
+				{{ 1,  0}, 90.0},     // Right
+				{{-1,  1}, 315.0},    // Top-left
+				{{ 1,  1}, 45.0},     // Top-right
+				{{-1, -1}, 225.0},    // Bottom-left
+				{{ 1, -1}, 135.0}     // Bottom-right
+			};
 
 			
-
-			for (const auto& coord : path) {
+			// command to go from (1,1) to 			
+			// Iterate with index and item
+			
+			// start at index 2, since index 0 is (1,0) and index 1 is (1,1)
+			for (std::size_t i = 2; i < path.size(); ++i) {
+				
+				std::pair<int, int> nextNode = {path[i].first, path[i].second};
+				std::pair<int, int> nextNodeDirection = {path[i].first - path[i-1].first, path[i].second - path[i-1].second};
 				
 
+				std::pair<int, int> currNode = {path[i-1].first, path[i-1].second};
+				std::pair<int, int> currNodeDirection = {path[i-1].first - path[i-2].first, path[i-1].second - path[i-2].second};
+				
+				// if nextNode heads in the same direction, go forward
+				if (nextNodeDirection.first == currNodeDirection.first && nextNodeDirection.second == currNodeDirection.second) {
+							
+					// if current command is to go straight and previous command is to go straight, combine them
+					if (!commands.empty() && commands.back().first == 'F') {
+						commands.back().second += 1;
+					} else {
+					// for case at beginning where it's same direction but no straight command, append it
+						commands.push_back({'F', 1});
+					}
 
-				std::cerr << "(" << coord.first << ", " << coord.second << ") " << std::endl;
+				} else {
+					// make a turn and then move
+					// desired field angle, use dictionary instead of atan2 for precision 
+					double nextNodeDirectionAngle = directionAngles[nextNodeDirection];
+					
+					// can't do absolute orientation on SIM, converts to left/right and left/right45
+#ifdef SIM
+					double currNodeDirectionAngle = directionAngles[currNodeDirection];
+					
+					// Calculate the raw angle difference
+					double desiredAngle = nextNodeDirectionAngle;
+					double currentAngle = currNodeDirectionAngle;	
+
+					double angleDiff = desiredAngle - currentAngle;
+
+					std::cerr << currentAngle << ", " << desiredAngle << std::endl;
+					
+					// Normalize the angle difference to be within [-180°, 180°]
+					if (angleDiff > 180.0) { angleDiff -= 360.0;
+					} else if (angleDiff < -180.0) { angleDiff += 360.0; }
+						
+					// allow for some floating point inaccuracy
+					while(abs(angleDiff) > 1) {
+
+						uint8_t turnAmount = 45;
+						if (abs(angleDiff) > 45) {
+							turnAmount = 90;	
+						}
+
+						if(angleDiff > 0) {
+							// turn right
+							angleDiff -= static_cast<double>(turnAmount);
+							commands.push_back({'R', turnAmount});
+						} else if (angleDiff < 0) {
+							// turn left
+							angleDiff += static_cast<double>(turnAmount);
+							commands.push_back({'L', turnAmount});
+						}
+					}
+					
+					// finally move forward
+					commands.push_back({'F', 1});
+#endif
+				}
 			}
-
-
+		
 			
+			// execute the actions in commands
+#ifdef SIM
+			// turn the bot to face north
+			API::turnLeft();
+			API::turnLeft();
 
+#endif
 
+			std::cerr << "speedrun" << std::endl;
 
+			// Range-based for loop
+			for (const auto& command : commands) {
+				std::cerr << "Action: " << command.first << ", Amount: " << static_cast<double>(command.second) << std::endl;
+				
+				switch(command.first) {
+	
+					case 'F':
+						API::moveForwardHalf(static_cast<int>(command.second));
 
+						break;
+					case 'L':
+						if (command.second == 45) { API::turnLeft45();
+						} else if (command.second == 90) { API::turnLeft(); }
+						break;
+					case 'R':
+						if (command.second == 45) { API::turnRight45();
+						} else if (command.second == 90) { API::turnRight(); }
+						break;
+					default:
+						std::cerr << "no caseoh" << std::endl;
+				}		
+			}
+				
+
+			std::cerr << "Done" << std::endl;
 			return;
 	    	}
 
@@ -1104,7 +1214,7 @@ void speedrun() {
 		    float tentative_gCost = highResMazeNode[current.X][current.Y].gCost;
 
 		    if(!sameDirection) {
-			tentative_gCost += 5;
+			tentative_gCost += 1;
 		    }
 		    
 		    // if path to neighbor is better than stored, update it
