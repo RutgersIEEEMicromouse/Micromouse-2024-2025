@@ -23,46 +23,21 @@ char maze[N][N] =
  {13, 12, 11, 10,  9, 8, 7, 6, 6, 7, 8,  9, 10, 11, 12, 13},  
  {14, 13, 12, 11, 10, 9, 8, 7, 7, 8, 9, 10, 11, 12, 13, 14}};
 
-/*
-// chebyshev
-char maze[N][N] = 
-{{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
- {7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7},
- {7, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7},   
- {7, 6, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 7},   
- {7, 6, 5, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7},   
- {7, 6, 5, 4, 3, 2, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7},   
- {7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 2, 3, 4, 5, 6, 7},   
- {7, 6, 5, 4, 3, 2, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7},   
- {7, 6, 5, 4, 3, 2, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7},   
- {7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 2, 3, 4, 5, 6, 7},   
- {7, 6, 5, 4, 3, 2, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7},   
- {7, 6, 5, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7},   
- {7, 6, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 7},   
- {7, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7},   
- {7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7},  
- {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7}};
-*/
-
-
-
-
-
 std::stack<configuration> cellStack;
 openCells walls[N][N];
 configuration currentCfg;
 configuration poppedCfg;
 
-std::stack<configuration> deadendStack;
-
+//std::stack<configuration> deadendStack;
 std::stack<configuration> pathTaken;
+
+
 
 void initialize() {
     // set current configuration to (0, 0) facing N
     currentCfg.x = 0;
     currentCfg.y = 0;
     currentCfg.dir = 'N';
-
 
 #ifdef REAL
     // read from pins, floating voltages are pulled down to GND if 3.3V isn't is applied
@@ -83,7 +58,6 @@ void initialize() {
         digitalWrite(LED_BUILTIN, HIGH);
     } else {
 #endif
-
 
     // start maze from scratch
     // set borders for walls array
@@ -109,9 +83,10 @@ void initialize() {
 
 }
 
+
+
 #ifdef REAL
 // Maze memory code
-
 void saveMazeToEEPROM(char maze[N][N]) {
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
@@ -150,13 +125,6 @@ void loadWallsFromEEPROM(openCells walls[N][N]) {
     }
 }
 #endif
-
-
-
-
-
-
-
 
 // open cells = no wall, includes cell that we came from
 // use sensors/API to check if there's a wall to the front, left, right
@@ -200,7 +168,6 @@ openCells checkOpenCells(configuration currentCfg) {
             break;
     }
 
-
     //update walls array
     walls[x][y].openN = temp.openN;
     walls[x][y].openS = temp.openS;
@@ -212,12 +179,10 @@ openCells checkOpenCells(configuration currentCfg) {
     //S = -y
     //E = +x
     //W = -x	
-    if(y+1 <= 15 && temp.openN) walls[x][y+1].openS = temp.openN; // update openS of north cell 
-    if(y-1 >= 0 && temp.openS) walls[x][y-1].openN = temp.openS; // update south cell
-    if(x+1 <= 15 && temp.openE) walls[x+1][y].openW = temp.openE; // update openW of east cell
-    if(x-1 >= 0 && temp.openW) walls[x-1][y].openE = temp.openW; // update west cell
-
-
+    if(y+1 <= 15 && !temp.openN) walls[x][y+1].openS = temp.openN; // update openS of north cell 
+    if(y-1 >= 0 && !temp.openS) walls[x][y-1].openN = temp.openS; // update south cell
+    if(x+1 <= 15 && !temp.openE) walls[x+1][y].openW = temp.openE; // update openW of east cell
+    if(x-1 >= 0 && !temp.openW) walls[x-1][y].openE = temp.openW; // update west cell
 
 #ifdef SIM
     visualizeWalls(x, y, walls[x][y]);
@@ -226,14 +191,11 @@ openCells checkOpenCells(configuration currentCfg) {
     return temp;
 }
 
-
-
 void flowElevation() {
     // given the maze, configuration, and wall checks, move to lower elevation until we hit 0
     // prioritize movements without turns if possible (DONE)
     // prioritize movements to unvisited first
 
-    //    Serial.println("Begin flow");
     int x = currentCfg.x; // up and down on the array = EW, first term
     int y = currentCfg.y; // left and right on the array = NS, second term
 	
@@ -268,21 +230,15 @@ void flowElevation() {
     int arraySort[4] = {N, S, E, W};
     std::sort(arraySort, arraySort + 4);
     int min = arraySort[0];
-    // std::cerr << "Min Cell Calculated: " << min << std::endl;
     
     // move to minimum of open cells (usually presentCellValue - 1)
-
     bool Nvisited = walls[x][y+1].visited;
     bool Svisited = walls[x][y-1].visited;
     bool Evisited = walls[x+1][y].visited;
     bool Wvisited = walls[x-1][y].visited;
 
-
-
     // prefer to move forward without spinning
     char facing = currentCfg.dir;
-
-    //std::cerr << facing << std::endl;
     switch(facing) {
 
         case 'N':
@@ -313,10 +269,7 @@ void flowElevation() {
             break;
     }
 
-
-    // std::cerr << "backup" << std::endl;
     // extra parameters for move
-    // don't move to higher elevations ever, wait for cell update before moving 
     if(N == min && maze[x][y] == min + 1 && openN && !Nvisited) {
         move('N');
         return;
@@ -352,7 +305,6 @@ void flowElevation() {
         return;
     }
 
-
     return;
 }
 
@@ -364,13 +316,11 @@ void flowElevation() {
 //    (since these should stay 0)
 void checkNeigboringOpen(configuration poppedCfg) {
     
-    // For the popped configuration, refer to the global 
-    // walls array instead of checking from the API
-
     int x = poppedCfg.x;
     int y = poppedCfg.y;
-    // char dir = poppedCfg.dir;
-
+    
+    // For the popped configuration, refer to the global 
+    // walls array instead of checking from the API
     bool openN = walls[x][y].openN;
     bool openS = walls[x][y].openS;
     bool openE = walls[x][y].openE;
@@ -392,58 +342,40 @@ void checkNeigboringOpen(configuration poppedCfg) {
     if(x+1 <= 15 && openE) E = maze[x+1][y];
     if(x-1 >= 0 && openW) W = maze[x-1][y];
 
-
     // find the min using arraysort
     int arraySort[4] = {N, S, E, W};
     std::sort(arraySort, arraySort + 4);
     int min = arraySort[0];
-    // std::cerr << maze[x][y] << std::endl;
-    // std::cerr << arraySort[0] << " " <<  arraySort[1] << " " << arraySort[2] << " " <<arraySort[3] << std::endl;
 
     // if minimum distance of neighboring open cells is not presentCellValue - 1
-
     if(min != maze[x][y] - 1) {
-        // std::cerr << "min check failed";
         // replace present cell's distance with minimum + 1
-            maze[x][y] = min + 1;
+	maze[x][y] = min + 1;
 
         // push all neighbor locations onto the stack except the goal locations
-
         configuration pushCfg = poppedCfg;
-
 
         if(x+1 <= 15 && !((x+1==7 && y==7) || (x+1==7 && y==8) || (x+1==8 && y==7) || (x+1==8 && y==8))) {
             pushCfg.x += 1;
             cellStack.push(pushCfg);
-            // std::cerr << "Pushed (" << pushCfg.x << ", " << pushCfg.y << ")";
             pushCfg.x -= 1;
         }
         if(x-1 >= 0 && !((x-1==7 && y==7) || (x-1==7 && y==8) || (x-1==8 && y==7) || (x-1==8 && y==8))) {
             pushCfg.x -= 1;
             cellStack.push(pushCfg);
-            // std::cerr << "Pushed (" << pushCfg.x << ", " << pushCfg.y << ")";
             pushCfg.x += 1;
         }
         if(y+1 <= 15 && !((x==7 && y+1==7) || (x==7 && y+1==8) || (x==8 && y+1==7) || (x==8 && y+1==8))) {
             pushCfg.y += 1;
             cellStack.push(pushCfg);
-            // std::cerr << "Pushed (" << pushCfg.x << ", " << pushCfg.y << ")";
             pushCfg.y -= 1;
         }
         if(y-1 >= 0 && !((x==7 && y-1==7) || (x==7 && y-1==8) || (x==8 && y-1==7) || (x==8 && y-1==8))) {
             pushCfg.y -= 1;
             cellStack.push(pushCfg);
-            // std::cerr << "Pushed (" << pushCfg.x << ", " << pushCfg.y << ")";
             pushCfg.y += 1;
         }
     }
-	
-
-
-
-
-    // std::cerr << "stack size: " << cellStack.size();
-	
 
 #ifdef SIM
     visualizeMaze(maze);
@@ -470,92 +402,77 @@ void checkNeigboringOpen(configuration poppedCfg) {
     API:turnLeft();
 */
 void move(char direction) {
-    
     char facing = currentCfg.dir;
     
     // if facing and direction are the same, go straight
     if(facing == direction) {
         API::moveForward();
     } else {
-
         if(facing == 'N') {
             switch(direction) {
-
-            case 'S': // turn around
-            API::turnLeft(); API::turnLeft(); API::moveForward();
-            break;
-
-            case 'W': // turnLeft
-            API::turnLeft(); API::moveForward();
-            break;
-
-            case 'E': // turnRight
-            API::turnRight(); API::moveForward();
-            break;
+		    case 'S': // turn around
+			    API::turnLeft(); API::turnLeft(); API::moveForward();
+			    break;
+		    case 'W': // turnLeft
+			    API::turnLeft(); API::moveForward();
+			    break;
+		    case 'E': // turnRight
+			    API::turnRight(); API::moveForward();
+			    break;
             }
         }
-
         if(facing == 'S') {
             switch(direction) {
-
-            case 'N': // turn around
-            API::turnLeft(); API::turnLeft(); API::moveForward();
-            break;
-
-            case 'E': // turnLeft
-            API::turnLeft(); API::moveForward();
-            break;
-
-            case 'W': // turnRight
-            API::turnRight(); API::moveForward();
-            break;
+		    case 'N': // turn around
+			    API::turnLeft(); API::turnLeft(); API::moveForward();
+			    break;
+		    case 'E': // turnLeft
+			    API::turnLeft(); API::moveForward();
+			    break;
+		    case 'W': // turnRight
+			    API::turnRight(); API::moveForward();
+			    break;
             }
         }
-
         if(facing == 'E') {
             switch(direction) {
-
-            case 'W': // turn around
-            API::turnLeft(); API::turnLeft(); API::moveForward();
-            break;
-
-            case 'N': // turnLeft
-            API::turnLeft(); API::moveForward();
-            break;
-
-            case 'S': // turnRight
-            API::turnRight(); API::moveForward();
-            break;
+		    case 'W': // turn around
+			    API::turnLeft(); API::turnLeft(); API::moveForward();
+			    break;
+		    case 'N': // turnLeft
+			    API::turnLeft(); API::moveForward();
+			    break;
+		    case 'S': // turnRight
+			    API::turnRight(); API::moveForward();
+			    break;
             }
         }
-
         if(facing == 'W') {
             switch(direction) {
-
-            case 'E': // turn around
-            API::turnLeft(); API::turnLeft(); API::moveForward();
-            break;
-
-            case 'S': // turnLeft
-            API::turnLeft(); API::moveForward();
-            break;
-
-            case 'N': // turnRight
-            API::turnRight(); API::moveForward();
-            break;
+		    case 'E': // turn around
+			    API::turnLeft(); API::turnLeft(); API::moveForward();
+			    break;
+		    case 'S': // turnLeft
+			    API::turnLeft(); API::moveForward();
+			    break;
+		    case 'N': // turnRight
+			    API::turnRight(); API::moveForward();
+			    break;
             }
         }
     }
     
+
     //N = +y
     //S = -y
     //E = +x
     //W = -x
+    
+    // update current cfg
 
     currentCfg.dir = direction;
 
     switch(direction) {
-
         case 'N':
             currentCfg.y++;
         break;
@@ -573,111 +490,11 @@ void move(char direction) {
         break;
     }
 
-
     return;
 }
 
 /*
 void invertMaze(char goal) {
-    std::cerr << "HELLO????";
-
-    int endCell;
-    // if the goal is to go back to the start
-    if(goal == 's') {
-        endCell = maze[0][0];
-    }
-    // if the goal is to get back to the center
-    else if(goal == 'c') {
-        // use minimum of the 4 center squares as the endCell
-	int arraySort[4] = {maze[7][7], maze[7][8], maze[8][7], maze[8][8]};
-	std::sort(arraySort, arraySort + 4);
-	endCell = arraySort[0];
-	}
-
-// deadend filler, if cell has value greater than value of the startpoint
-// set the cell as a closed cell with openN, openS, openE, openW = false
-
-// also if a cell next to a dead end cell only has 1 other open cell
-// it is a closed cell as well 
-std::stack<configuration> deadendStack;
-configuration pushCfg;
-
-for(int i = 0; i < 16; i++) {
-for(int j = 0; j < 16; j++) {
-if(maze[i][j] > goal) {
-pushCfg.x = i;
-pushCfg.y = j;
-// don't need dir
-deadendStack.push(pushCfg);
-}
-}
-}
-
-//N = +y
-//S = -y
-//E = +x
-//W = -x
-
-while(!deadendStack.empty()) {
-poppedCfg = deadendStack.top();
-deadendStack.pop();
-
-int x = poppedCfg.x;
-int y = poppedCfg.y;
-// don't need dir
-
-// first push open neigbors to stack
-openCells neigboringOpen;
-neigboringOpen.openN = walls[x][y].openN;
-neigboringOpen.openS = walls[x][y].openS;
-neigboringOpen.openE = walls[x][y].openE;
-neigboringOpen.openW = walls[x][y].openW;
-
-pushCfg = poppedCfg;
-if(neigboringOpen.openN) {
-pushCfg.y++; 
-deadendStack.push(pushCfg);
-pushCfg.y--;
-}
-if(neigboringOpen.openS) {
-pushCfg.y--; 
-deadendStack.push(pushCfg);
-pushCfg.y++;
-}
-if(neigboringOpen.openE) {
-pushCfg.x++; 
-deadendStack.push(pushCfg);
-pushCfg.x--;
-}
-if(neigboringOpen.openW) {
-	pushCfg.x--; 
-	deadendStack.push(pushCfg);
-	pushCfg.x++;
-}
-
-// conditions for being a deadend cell:
-// - value greater than start node (we already did this)
-// - is closed off on 3 sides
-// - is next to a deadend cell (adding to stack sorts these) and only has 2 open side
-//   (one side that leads into the dead end and one that leads out)
-int numOpen = neigboringOpen.openN + neigboringOpen.openS + neigboringOpen.openE + neigboringOpen.openW;
-if((maze[x][y] > goal) || (numOpen <= 2)) {
-	walls[x][y].openN = false;
-	walls[x][y].openS = false;
-	walls[x][y].openE = false;
-	walls[x][y].openW = false;
-}
-}
-
-//invert the maze by doing endCell - maze[i][j]
-// -> endCell will become 0 (goal)
-for(int i = 0; i < 16; i++) {
-	for(int j = 0; j < 16; j++) {
-		maze[i][j] = endCell - maze[i][j];
-	}
-}
-
-return;
 }
 */
 
@@ -688,7 +505,6 @@ void mazePrintout() {
 	std::cerr << std::endl;
 	for(int j = 15; j >= 0; j--) {
 		for(int i = 0; i < 16; i++) {
-
 			if(currentCfg.x == i && currentCfg.y == j) {
 				if(maze[i][j] < 10) std::cerr << "[" << static_cast<int>(maze[i][j]) << "], ";
 				else std::cerr << "[" << static_cast<int>(maze[i][j]) << "], ";
@@ -696,11 +512,8 @@ void mazePrintout() {
 				if(maze[i][j] < 10) std::cerr << " " << static_cast<int>(maze[i][j]) << ", ";
 				else std::cerr << static_cast<int>(maze[i][j]) << ", ";
 			}
-
-
 		}
 		std::cerr << std::endl;
-
 	}
 	std::cerr << std::endl;        
 }
@@ -739,8 +552,6 @@ void mazePrintout() {
 				Serial.print(maze[i][j]);
 				Serial.print(", ");
 			}
-
-
 		}
 		Serial.println();
 	}
@@ -752,22 +563,15 @@ void mazePrintout() {
 
 
 void runMaze(char goal) {
-	//Serial.print("Start 2");
-
 	int loopCondition = 1;
-
 	while(loopCondition) {
-
 		pathTaken.push(currentCfg);
 #ifdef SIM
 		API::setColor(currentCfg.x, currentCfg.y, 'a');
 #endif
-
-
-
 		// Micromouse moves from higher to lower elevations
-		// std::cerr << "[" << currentCfg.x << " " << currentCfg.y << " " << currentCfg.dir << "] -> " << maze[currentCfg.x][currentCfg.y] << std::endl;
 		flowElevation();
+		
 		//end condition
 		if(goal == 'c') {
 			if((currentCfg.x == 7 || currentCfg.x == 8) && (currentCfg.y == 7 || currentCfg.y == 8)) {
@@ -791,23 +595,18 @@ void runMaze(char goal) {
 					walls[6][7].openE = false;
 					walls[7][7].openW = false; // 7,7
 				}
-
-
 				if (!(currentCfg.x == 7 && currentCfg.y == 8)) {			
-
 					walls[7][8].openN = false; // 7,8
 					walls[7][9].openS = false;
 					walls[6][8].openE = false;
 					walls[7][8].openW = false; // 7,8
 				}
-
 				if (!(currentCfg.x == 8 && currentCfg.y == 7)) {			
 					walls[8][6].openN = false;
 					walls[8][7].openS = false; // 8,7
 					walls[8][7].openE = false; // 8,7
 					walls[9][7].openW = false;
 				}
-
 				if (!(currentCfg.x == 8 && currentCfg.y == 8)) {
 					walls[8][8].openN = false; // 8,8
 					walls[8][9].openS = false;
@@ -823,13 +622,9 @@ void runMaze(char goal) {
 					}
 				}
 #endif
-
 				loopCondition = 0;
 			}
 		}
-
-
-		// std::cerr << "Walls Array "<< walls[currentCfg.x][currentCfg.y].openN << walls[currentCfg.x][currentCfg.y].openS << walls[currentCfg.x][currentCfg.y].openE << walls[currentCfg.x][currentCfg.y].openW << std::endl;
 
 		//1) Push the current cell location onto the stack
 		cellStack.push(currentCfg);
@@ -839,14 +634,9 @@ void runMaze(char goal) {
 			//pull the cell location from the stack
 			poppedCfg = cellStack.top();
 			cellStack.pop();
-
-			// std::cerr << poppedCfg.x << " " << poppedCfg.y << " " << poppedCfg.dir << std::endl;
-
 			checkNeigboringOpen(poppedCfg);
 		}
-
 		//mazePrintout();
-
 	}
 
 #ifdef REAL
@@ -865,11 +655,8 @@ void runMaze(char goal) {
 			delay(200);
 			digitalWrite(LED_BUILTIN, HIGH);
 		}
-
 	}
-
 #endif
-
 }
 
 //N = +y
@@ -899,12 +686,26 @@ void backTrack() {
 			move('W');
 		}
 	}
+	
+	// face the mouse north again
+	switch(currentCfg.dir) {
+		case 'S': 
+			API::turnLeft(); API::turnLeft();
+			break;
+		case 'E': 
+			API::turnLeft();
+			break;
+		case 'W': 
+			API::turnRight();
+			break;
+	}
+	
+	currentCfg.dir = 'N';
 }
 
-// TODO
-// Idea?
+// A* diagonal, continuous idea
 // Break maze into 33x33, 16 cells + 15 inbetween cells, also + 2 inbetween cells for the walls
-// Move from each half cell to half cell using Chebyshev distance
+// Move from each half cell to half cell using Chebyshev distance (this is a searching issue)
 // Refactor move to include cardinal combinations
 void speedrun() {
 	bool highResMaze[33][33] = {}; // 33x33 array initialized to false, true represents obstacle
@@ -930,6 +731,8 @@ void speedrun() {
 	//E = +x
 	//W = -x
 
+	// 1 means wall
+	// 0 means no wall
 	for (int i = 0; i < 16; i++) {
 		for (int j = 0; j < 16; j++) {
 			int highResX = 2*i+1;
@@ -963,13 +766,14 @@ void speedrun() {
 		}
 	}
 
-
+	/*
 	for(int j = 32; j >= 0; j--) {
 		for(int i = 0; i < 33; i++) {
 			std::cerr << highResMaze[i][j] << " ";
 		}
 		std::cerr << std::endl;
 	}
+	*/
 
 
 	// straight line A*
@@ -984,7 +788,7 @@ void speedrun() {
 		}
 	}
 	
-	// (start point "comes from" the node behind it)
+	// start point "comes from" the node behind it, to face north
 	highResMazeNode[1][1].parentX = 1;
 	highResMazeNode[1][1].parentX = 0;
 
@@ -1030,14 +834,11 @@ void speedrun() {
 	while(!openSet.empty()) {
 		Node current = openSet.top();
 
-		// std::cerr << "(" << current.X << ", " << current.Y << ") ";
-
 		openSet.pop();
 		openSetCoords.erase({current.X, current.Y});
 		
 		// reconstruct path if current is in center
 		if((current.X >= 15 && current.X <= 17) && (current.Y >= 15 && current.Y <= 17)) {
-			std::cerr << "reconstruct path" << std::endl;
 
 			// essentially a dynamic array with <int, int> datatype
 			std::vector<std::pair<int, int>> path;
@@ -1058,18 +859,19 @@ void speedrun() {
 			
 			// reverse list to start from beginning
 			std::reverse(path.begin(), path.end());
-			
+
+			/*
 			// Print the path
 			std::cerr << "Path: ";
 			for (const auto& coord : path) {
 				std::cerr << "(" << coord.first << ", " << coord.second << ") " << std::endl;
 			}
 			std::cerr << std::endl;
-					
+			*/		
 	
 
 			// convert path to straights and turns
-			std::vector<std::pair<char, uint8_t>> commands;
+			std::vector<std::pair<char, double>> commands;
 			
 			// Dictionary (map) of directions to angles
 			std::map<std::pair<int, int>, double> directionAngles = {
@@ -1099,13 +901,15 @@ void speedrun() {
 				
 				// if nextNode heads in the same direction, go forward
 				if (nextNodeDirection.first == currNodeDirection.first && nextNodeDirection.second == currNodeDirection.second) {
-							
+					
+					// TODO, on real bot, add the euclidean distance of a diagonal (which should be slighly further than a half block)
+
 					// if current command is to go straight and previous command is to go straight, combine them
 					if (!commands.empty() && commands.back().first == 'F') {
 						commands.back().second += 1;
 					} else {
 					// for case at beginning where it's same direction but no straight command, append it
-						commands.push_back({'F', 1});
+						commands.push_back({'F', 1.0});
 					}
 
 				} else {
@@ -1123,8 +927,6 @@ void speedrun() {
 
 					double angleDiff = desiredAngle - currentAngle;
 
-					std::cerr << currentAngle << ", " << desiredAngle << std::endl;
-					
 					// Normalize the angle difference to be within [-180°, 180°]
 					if (angleDiff > 180.0) { angleDiff -= 360.0;
 					} else if (angleDiff < -180.0) { angleDiff += 360.0; }
@@ -1132,48 +934,41 @@ void speedrun() {
 					// allow for some floating point inaccuracy
 					while(abs(angleDiff) > 1) {
 
-						uint8_t turnAmount = 45;
+						double turnAmount = 45.0;
 						if (abs(angleDiff) > 45) {
-							turnAmount = 90;	
+							turnAmount = 90.0;	
 						}
 
 						if(angleDiff > 0) {
 							// turn right
-							angleDiff -= static_cast<double>(turnAmount);
+							angleDiff -= turnAmount;
 							commands.push_back({'R', turnAmount});
 						} else if (angleDiff < 0) {
 							// turn left
-							angleDiff += static_cast<double>(turnAmount);
+							angleDiff += turnAmount;
 							commands.push_back({'L', turnAmount});
 						}
 					}
-					
+#endif
+
+#ifdef REAL
+					// on real robot, turn to absolute orientation
+					commands.push_back({'T', turnAmount});
+#endif
+
 					// finally move forward
 					commands.push_back({'F', 1});
-#endif
 				}
 			}
 		
-			
-			// execute the actions in commands
-#ifdef SIM
-			// turn the bot to face north
-			API::turnLeft();
-			API::turnLeft();
 
-#endif
-
-			std::cerr << "speedrun" << std::endl;
-
+			// Execute actions in commands vector
 			// Range-based for loop
 			for (const auto& command : commands) {
-				std::cerr << "Action: " << command.first << ", Amount: " << static_cast<double>(command.second) << std::endl;
 				
 				switch(command.first) {
-	
 					case 'F':
 						API::moveForwardHalf(static_cast<int>(command.second));
-
 						break;
 					case 'L':
 						if (command.second == 45) { API::turnLeft45();
@@ -1183,13 +978,15 @@ void speedrun() {
 						if (command.second == 45) { API::turnRight45();
 						} else if (command.second == 90) { API::turnRight(); }
 						break;
+					case 'T':
+						// turn to absolute orientation on real robot instead of relative
+						// TODO
+						break;
 					default:
 						std::cerr << "no caseoh" << std::endl;
 				}		
 			}
 				
-
-			std::cerr << "Done" << std::endl;
 			return;
 	    	}
 

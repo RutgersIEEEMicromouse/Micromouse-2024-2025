@@ -74,6 +74,12 @@ void visualizeWalls(int x, int y, openCells cell);
 
 
 
+// Flood fill algorithm
+// mouse tries to approach smaller values of the maze
+// as the mouse explores, it updates the values along its path. 
+
+//Modified Flood Fill
+//https://marsuniversity.github.io/ece387/FloodFill.pdf
 void flowElevation();
 openCells checkOpenCells(configuration currentCfg);
 void checkNeigboringOpen(configuration poppedCfg);
@@ -87,7 +93,7 @@ void backTrack();
 
 
 
-// TODO
+// DONE
 // converts maze and wall configuration to continuous straight and diagonals
 #include<cmath>
 #include<queue>
@@ -96,9 +102,8 @@ void backTrack();
 #include<cstdint>
 #include<map>
 
-//float calculateH(int x, int y);
+// A* algorithm
 void speedrun();
-
 
 
 struct Node
