@@ -1,8 +1,3 @@
-	pathfinding/.gitignore
-	pathfinding/output/
-	pathfinding/src/API.d
-	pathfinding/src/API.o
-	pathfinding/src/floodfill.d
-	pathfinding/src/floodfill.o
-	pathfinding/src/main.d
-	pathfinding/src/main.o
+pathfinding/output/main
+pathfinding/src/*.d
+pathfinding/src/*.o
