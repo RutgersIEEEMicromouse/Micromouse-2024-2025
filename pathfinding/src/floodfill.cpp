@@ -495,3 +495,7 @@ static void reflood()
         }
     }
 }
+
+void getsuccessors(point, std::vector<point> vector){
+    
+}
