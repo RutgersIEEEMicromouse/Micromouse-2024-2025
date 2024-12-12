@@ -6,8 +6,6 @@
  */
 int main()
 {
-    initialize_maze({7,7},true);
-    floodfill();
-    movebot();
+    initialize_maze(14,14,true);
     
 }

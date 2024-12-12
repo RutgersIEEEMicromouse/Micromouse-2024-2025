@@ -1,48 +1,23 @@
-[return](../README.md)
 # Maze Algorithm
 
-## MIT 2024
-
-The maze algorithm failed. It'd, when it refloods at specific points, never work. 
+This year, we want diagonals, we're fancy people. In order to do this, we need to redo the maze algorithm. Our previous algorithm was floodfill, but it was quite a constraint. 
 
 
-## Cause
+## Modifications
 
-Most likely, the setwalls function. It would set a wall at a place where there is no wall, so the bot assumes it is in a 1 x 1 cell.
-
-## Revisions
-
-Instead of manually setting the walls directly, helper functions were used.
+- The maze needs to be twice as big, to account for the spot between two cells. For this, we need to use floats instead of integer types. 
 
 ```cpp
-static void setsouthwall(point point)
-{
- maze[point.x][point.y].S = 1;
-    API::setWall(point.x, point.y, 's');
-    fprintf(stderr, "Set south wall at (%d, %d)\n", point.x, point.y);
-
-    if (point.y > 0)
- {
- maze[point.x][point.y - 1].N = 1;
-        API::setWall(point.x, point.y - 1, 'n');
-        fprintf(stderr, "Set north wall at (%d, %d)\n", point.x, point.y - 1);
- }
-    else
- {
-        fprintf(stderr, "Cannot set north wall; out of bounds for (%d, %d)\n", point.x, point.y);
- }
-}
-
+typedef struct{
+  float weight;
+  point parent;
+  bool visited;
+} cell;
 ```
 
+For exploration, we'll use floodfill, and for the final run, we'll use A star to find the destination.
 
-## Running Maze Algorithm in simulation
+### Encodings
 
-to run:
-
-```
-make # compiles the file
-./output/main #runs the file
-```
-
-This uses the [following simulator](https://github.com/mackorone/mms?tab=readme-ov-file#maze-files)
+- When we initialize, we initialize everything to -1. 
+- We encode walls as -2
