@@ -21,3 +21,4 @@ typedef struct{
 } cell;
 
 void initialize_maze(uint8_t x, uint8_t y,bool reset);
+void floodfill();

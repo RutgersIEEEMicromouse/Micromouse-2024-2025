@@ -6,6 +6,6 @@
  */
 int main()
 {
-    initialize_maze(14,14,true);
-    
+    initialize_maze(15,15,true);
+    floodfill();
 }
