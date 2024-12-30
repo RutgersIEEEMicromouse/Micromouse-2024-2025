@@ -70,11 +70,298 @@ static void print_to_file(const char* filea) {
     // exit(1);
 }
 void realturn(std::string direction){
-    if(mouse.direction == "n"){
+    if(redieeem.direction == "n"){
         if(direction == "n"){
-            API::moveForward(0.5);
+            API::moveForwardHalf();
+        }
+        else if(direction == "s"){
+            API::turnRight();
+            API::turnRight();
+            API::moveForwardHalf();
+        }
+        else if(direction == "e"){
+            API::turnRight();
+            API::moveForwardHalf();
+        }
+        else if(direction == "w"){
+            API::turnLeft();
+            API::moveForwardHalf();
+        }
+        else if(direction == "nw"){
+            API::turnLeft45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "ne"){
+            API::turnRight45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "sw"){
+            API::turnLeft();
+            API::turnLeft45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "se"){
+            API::turnRight();
+            API::turnRight45();
+            API::moveForwardHalf();
         }
     }
+    else if(redieeem.direction == "w"){
+        if(direction == "w"){
+            API::moveForwardHalf();
+        }
+        else if(direction == "e"){
+            API::turnRight();
+            API::turnRight();
+            API::moveForwardHalf();
+        }
+        else if(direction == "n"){
+            API::turnRight();
+            API::moveForwardHalf();
+        }
+        else if(direction == "s"){
+            API::turnLeft();
+            API::moveForwardHalf();
+        }
+        else if(direction == "sw"){
+            API::turnLeft45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "nw"){
+            API::turnRight45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "se"){
+            API::turnLeft();
+            API::turnLeft45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "ne"){
+            API::turnRight();
+            API::turnRight45();
+            API::moveForwardHalf();
+        }
+    }
+    else if(redieeem.direction == "s"){
+        if(direction == "s"){
+            API::moveForwardHalf();
+        }
+        else if(direction == "n"){
+            API::turnRight();
+            API::turnRight();
+            API::moveForwardHalf();
+        }
+        else if(direction == "w"){
+            API::turnRight();
+            API::moveForwardHalf();
+        }
+        else if(direction == "e"){
+            API::turnLeft();
+            API::moveForwardHalf();
+        }
+        else if(direction == "se"){
+            API::turnLeft45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "sw"){
+            API::turnRight45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "ne"){
+            API::turnLeft();
+            API::turnLeft45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "nw"){
+            API::turnRight();
+            API::turnRight45();
+            API::moveForwardHalf();
+        }
+    }
+    else if(redieeem.direction == "e"){
+        if(direction == "e"){
+            API::moveForwardHalf();
+        }
+        else if(direction == "w"){
+            API::turnRight();
+            API::turnRight();
+            API::moveForwardHalf();
+        }
+        else if(direction == "s"){
+            API::turnRight();
+            API::moveForwardHalf();
+        }
+        else if(direction == "n"){
+            API::turnLeft();
+            API::moveForwardHalf();
+        }
+        else if(direction == "ne"){
+            API::turnLeft45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "se"){
+            API::turnRight45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "nw"){
+            API::turnLeft();
+            API::turnLeft45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "sw"){
+            API::turnRight();
+            API::turnRight45();
+            API::moveForwardHalf();
+        }
+    }
+    else if(redieeem.direction == "ne"){
+        if(direction == "ne"){
+            API::moveForwardHalf();
+        }
+        else if(direction == "sw"){
+            API::turnRight();
+            API::turnRight();
+            API::moveForwardHalf();
+        }
+        else if(direction == "se"){
+            API::turnRight();
+            API::moveForwardHalf();
+        }
+        else if(direction == "nw"){
+            API::turnLeft();
+            API::moveForwardHalf();
+        }
+        else if(direction == "n"){
+            API::turnLeft45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "e"){
+            API::turnRight45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "w"){
+            API::turnLeft();
+            API::turnLeft45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "s"){
+            API::turnRight();
+            API::turnRight45();
+            API::moveForwardHalf();
+        }
+    }
+    else if(redieeem.direction == "nw"){
+        if(direction == "nw"){
+            API::moveForwardHalf();
+        }
+        else if(direction == "se"){
+            API::turnRight();
+            API::turnRight();
+            API::moveForwardHalf();
+        }
+        else if(direction == "ne"){
+            API::turnRight();
+            API::moveForwardHalf();
+        }
+        else if(direction == "sw"){
+            API::turnLeft();
+            API::moveForwardHalf();
+        }
+        else if(direction == "w"){
+            API::turnLeft45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "n"){
+            API::turnRight45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "s"){
+            API::turnLeft();
+            API::turnLeft45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "e"){
+            API::turnRight();
+            API::turnRight45();
+            API::moveForwardHalf();
+        }
+    }
+    else if(redieeem.direction == "sw"){
+        if(direction == "sw"){
+            API::moveForwardHalf();
+        }
+        else if(direction == "ne"){
+            API::turnRight();
+            API::turnRight();
+            API::moveForwardHalf();
+        }
+        else if(direction == "nw"){
+            API::turnRight();
+            API::moveForwardHalf();
+        }
+        else if(direction == "se"){
+            API::turnLeft();
+            API::moveForwardHalf();
+        }
+        else if(direction == "s"){
+            API::turnLeft45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "w"){
+            API::turnRight45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "e"){
+            API::turnLeft();
+            API::turnLeft45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "n"){
+            API::turnRight();
+            API::turnRight45();
+            API::moveForwardHalf();
+        }
+    }
+    else if(redieeem.direction == "se"){
+        if(direction == "se"){
+            API::moveForwardHalf();
+        }
+        else if(direction == "nw"){
+            API::turnRight();
+            API::turnRight();
+            API::moveForwardHalf();
+        }
+        else if(direction == "sw"){
+            API::turnRight();
+            API::moveForwardHalf();
+        }
+        else if(direction == "ne"){
+            API::turnLeft();
+            API::moveForwardHalf();
+        }
+        else if(direction == "e"){
+            API::turnLeft45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "s"){
+            API::turnRight45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "n"){
+            API::turnLeft();
+            API::turnLeft45();
+            API::moveForwardHalf();
+        }
+        else if(direction == "w"){
+            API::turnRight();
+            API::turnRight45();
+            API::moveForwardHalf();
+        }
+    }
+    else{
+        exit(1);
+    }
+    redieeem.direction = direction;
 }
 void Astar(uint8_t x, uint8_t y) {
     redieeem.location.x = mouse.location.x;
@@ -91,7 +378,7 @@ void Astar(uint8_t x, uint8_t y) {
     while (!queue.empty()) {
         meta_data point = queue.top();
         queue.pop();
-        fprintf(stderr,"Exploring node (%d,%d) with weight %f\n",point.curr.x,point.curr.y,point.weight);
+        // fprintf(stderr,"Exploring node (%d,%d) with weight %f\n",point.curr.x,point.curr.y,point.weight);
         if (point.curr.x == destination.x && point.curr.y == destination.y){
             
             break;
@@ -101,7 +388,7 @@ void Astar(uint8_t x, uint8_t y) {
         y = point.curr.y;
 
         auto process_neighbor = [&](int nx, int ny, const std::string& dir) {
-            fprintf(stderr,"point (%d,%d): %s\n",nx,ny,maze[nx][ny].visited ? "Visited" : "Not visited"); 
+            // fprintf(stderr,"point (%d,%d): %s\n",nx,ny,maze[nx][ny].visited ? "Visited" : "Not visited"); 
             if (nx >= 0 && nx < 33 && ny >= 0 && ny < 33 && maze[nx][ny].visited) {
                 meta_data neighbor;
                 neighbor.curr = {static_cast<uint8_t>(nx), static_cast<uint8_t>(ny)};
@@ -116,14 +403,14 @@ void Astar(uint8_t x, uint8_t y) {
         };
 
         // Process all neighbors
-        process_neighbor(x, y + 1, "N");
-        process_neighbor(x, y - 1, "S");
-        process_neighbor(x + 1, y, "E");
-        process_neighbor(x - 1, y, "W");
-        process_neighbor(x + 1, y + 1, "NE");
-        process_neighbor(x - 1, y + 1, "NW");
-        process_neighbor(x + 1, y - 1, "SE");
-        process_neighbor(x - 1, y - 1, "SW");
+        process_neighbor(x, y + 1, "n");
+        process_neighbor(x, y - 1, "s");
+        process_neighbor(x + 1, y, "e");
+        process_neighbor(x - 1, y, "w");
+        process_neighbor(x + 1, y + 1, "ne");
+        process_neighbor(x - 1, y + 1, "nw");
+        process_neighbor(x + 1, y - 1, "se");
+        process_neighbor(x - 1, y - 1, "sw");
     }
     std::cerr<<"A star end"<<std::endl;
     // Backtracking
@@ -140,5 +427,12 @@ void Astar(uint8_t x, uint8_t y) {
             return;
         }
         back_boi = map[back_boi.parent];
+    }
+    // fprintf(stderr,"mouse current direction: %c\n",mouse.direction);
+    // exit(1);
+    while(!stack.empty()){
+        // std::cerr<<stack.top()<<std::endl;
+        realturn(stack.top());
+        stack.pop();
     }
 }

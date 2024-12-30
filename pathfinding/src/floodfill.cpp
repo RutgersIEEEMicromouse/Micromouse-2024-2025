@@ -97,7 +97,7 @@ void reflood() {
     // char buf[50];
     // snprintf(buf,sizeof(buf),"../maze%d.txt",i++);
     // print_to_file(buf);
-    fprintf(stderr, "Reflood %d complete.\n",i - 1);
+    // fprintf(stderr, "Reflood %d complete.\n",i - 1);
 }
 
 
@@ -376,13 +376,13 @@ void floodfill() {
         // Find the minimum weight
         float max_weight = INFINITY;
         char dec_direction;
-        fprintf(stderr,"------------ITERATION----------------\n");
+        // fprintf(stderr,"------------ITERATION----------------\n");
         // Check north
         if (mouse.location.y < 31 && !hasnorthwall(mouse.location) && maze[mouse.location.x][mouse.location.y + 2].weight < max_weight) {
             max_weight = maze[mouse.location.x][mouse.location.y + 2].weight;
             maze[mouse.location.x][mouse.location.y + 1].visited = 1;
             dec_direction = 'n';
-            fprintf(stderr, "North direction has weight %.2f.\n", max_weight);
+            // fprintf(stderr, "North direction has weight %.2f.\n", max_weight);
         }
 
         // Check south
@@ -390,7 +390,7 @@ void floodfill() {
             max_weight = maze[mouse.location.x][mouse.location.y - 2].weight;
             maze[mouse.location.x][mouse.location.y - 1].visited = 1;
             dec_direction = 's';
-            fprintf(stderr, "South direction has weight %.2f.\n", max_weight);
+            // fprintf(stderr, "South direction has weight %.2f.\n", max_weight);
         }
 
         // Check east
@@ -398,7 +398,7 @@ void floodfill() {
             max_weight = maze[mouse.location.x + 2][mouse.location.y].weight;
             maze[mouse.location.x + 1][mouse.location.y].visited = 1;
             dec_direction = 'e';
-            fprintf(stderr, "East direction has weight %.2f.\n", max_weight);
+            // fprintf(stderr, "East direction has weight %.2f.\n", max_weight);
         }
 
         // Check west
@@ -406,10 +406,10 @@ void floodfill() {
             max_weight = maze[mouse.location.x - 2][mouse.location.y].weight;
             maze[mouse.location.x - 1][mouse.location.y].visited = 1;
             dec_direction = 'w';
-            fprintf(stderr, "West direction has weight %.2f.\n", max_weight);
+            // fprintf(stderr, "West direction has weight %.2f.\n", max_weight);
         }
         // stall();
-        fprintf(stderr, "Decided direction: %c with weight %.2f.\n", dec_direction, max_weight);
+        // fprintf(stderr, "Decided direction: %c with weight %.2f.\n", dec_direction, max_weight);
         if(max_weight != maze[mouse.location.x][mouse.location.y].weight - 1){
             reflood();
         }
