@@ -1,4 +1,4 @@
-#include "../include/API.h"
+#include "API.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -54,6 +54,22 @@ void API::moveForward(int distance) {
     }
 }
 
+void API::moveForwardHalf(int numHalfSteps) {
+    std::cout << "moveForwardHalf ";
+    // Don't print distance argument unless explicitly specified, for
+    // backwards compatibility with older versions of the simulator
+    if (numHalfSteps != 1) {
+        std::cout << numHalfSteps;
+    }
+    std::cout << std::endl;
+    std::string response;
+    std::cin >> response;
+    if (response != "ack") {
+        std::cerr << response << std::endl;
+        throw;
+    }
+}
+
 void API::turnRight() {
     std::cout << "turnRight" << std::endl;
     std::string ack;
@@ -66,6 +82,17 @@ void API::turnLeft() {
     std::cin >> ack;
 }
 
+void API::turnRight45() {
+    std::cout << "turnRight45" << std::endl;
+    std::string ack;
+    std::cin >> ack;
+}
+
+void API::turnLeft45() {
+    std::cout << "turnLeft45" << std::endl;
+    std::string ack;
+    std::cin >> ack;
+}
 void API::setWall(int x, int y, char direction) {
     std::cout << "setWall " << x << " " << y << " " << direction << std::endl;
 }
