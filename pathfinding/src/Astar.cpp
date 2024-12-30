@@ -47,28 +47,9 @@ float Kh = 1;
 float get_heuristic(point x) {
     float length = destination.x - x.x;
     float height = destination.y - x.y;
-    return Kh * sqrt(length * length + height * height); // Euclidean distance
+    return Kh * sqrt(length * length + height * height);
 }
-static void print_to_file(const char* filea) {
-    
-    FILE* file = fopen(filea, "w");
-    if (!file) {
-        fprintf(stderr, "Error opening file for writing.\n");
-        return;
-    }
 
-    // Rotate the array 90 degrees counterclockwise while printing
-    for (int j = 32; j >= 0; j--) { // Columns of the original array (reversed)
-        for (int i = 0; i < 33; i++) { // Rows of the original array
-            // fprintf(file, "%lf\t", maze[i][j].weight);
-            fprintf(file, "%d\t", maze[i][j].visited);
-        }
-        fprintf(file, "\n");
-    }
-
-    fclose(file);
-    // exit(1);
-}
 void realturn(std::string direction){
     if(redieeem.direction == "n"){
         if(direction == "n"){
