@@ -15,6 +15,12 @@ void stall(){
     API::turnLeft();
 }
 
+uint16_t floodfill_expand = 0;
+#define N 0
+#define E 2
+#define S 4
+#define W 6
+
 static void fill_maze(){
     char buf[50];
     for(int i = 1; i < 33; i += 2){
@@ -175,248 +181,227 @@ void initialize_maze(uint8_t x, uint8_t y, bool reset) {
 }
 
 static void setwalls(mouse_t mike) {
-    // fprintf(stderr, "Setting walls for mouse at (%d, %d) facing %c\n", mike.location.x, mike.location.y, mike.direction);
-
-    if (mike.direction == 'n') {
+    uint8_t x = mike.location.x >> 1;
+    uint8_t y = mike.location.y >> 1;
+    if (mike.direction == N) {
         if (API::wallLeft()) {
-            // fprintf(stderr, "Wall detected on the left (west) at (%d, %d).\n", mike.location.x - 1, mike.location.y);
             maze[mike.location.x - 1][mike.location.y].weight = -2;
             maze[mike.location.x - 1][mike.location.y + 1].weight = -2;
             maze[mike.location.x - 1][mike.location.y - 1].weight = -2;
-            API::setWall(mike.location.x / 2, mike.location.y / 2, 'w');
+            API::setWall(x, y, 'w');
         }
         if (API::wallRight()) {
-            // fprintf(stderr, "Wall detected on the right (east) at (%d, %d).\n", mike.location.x + 1, mike.location.y);
             maze[mike.location.x + 1][mike.location.y].weight = -2;
             maze[mike.location.x + 1][mike.location.y + 1].weight = -2;
             maze[mike.location.x + 1][mike.location.y - 1].weight = -2;
-            API::setWall(mike.location.x / 2, mike.location.y / 2, 'e');
+            API::setWall(x, y, 'e');
         }
         if (API::wallFront()) {
-            // fprintf(stderr, "Wall detected in front (north) at (%d, %d).\n", mike.location.x, mike.location.y + 1);
             maze[mike.location.x][mike.location.y + 1].weight = -2;
             maze[mike.location.x - 1][mike.location.y + 1].weight = -2;
             maze[mike.location.x + 1][mike.location.y + 1].weight = -2;
-            API::setWall(mike.location.x / 2, mike.location.y / 2, 'n');
+            API::setWall(x, y, 'n');
         }
-    } else if (mike.direction == 's') {
+    } else if (mike.direction == S) {
         if (API::wallLeft()) {
-            // fprintf(stderr, "Wall detected on the left (east) at (%d, %d).\n", mike.location.x + 1, mike.location.y);
             maze[mike.location.x + 1][mike.location.y].weight = -2;
             maze[mike.location.x + 1][mike.location.y - 1].weight = -2;
             maze[mike.location.x + 1][mike.location.y + 1].weight = -2;
-            API::setWall(mike.location.x / 2, mike.location.y / 2, 'e');
+            API::setWall(x, y, 'e');
         }
         if (API::wallRight()) {
-            // fprintf(stderr, "Wall detected on the right (west) at (%d, %d).\n", mike.location.x - 1, mike.location.y);
             maze[mike.location.x - 1][mike.location.y].weight = -2;
             maze[mike.location.x - 1][mike.location.y - 1].weight = -2;
             maze[mike.location.x - 1][mike.location.y + 1].weight = -2;
-            API::setWall(mike.location.x / 2, mike.location.y / 2, 'w');
+            API::setWall(x, y, 'w');
         }
         if (API::wallFront()) {
-            // fprintf(stderr, "Wall detected in front (south) at (%d, %d).\n", mike.location.x, mike.location.y - 1);
             maze[mike.location.x][mike.location.y - 1].weight = -2;
             maze[mike.location.x + 1][mike.location.y - 1].weight = -2;
             maze[mike.location.x - 1][mike.location.y - 1].weight = -2;
-            API::setWall(mike.location.x / 2, mike.location.y / 2, 's');
+            API::setWall(x, y, 's');
         }
-    } else if (mike.direction == 'e') {
+    } else if (mike.direction == E) {
         if (API::wallLeft()) {
-            // fprintf(stderr, "Wall detected on the left (north) at (%d, %d).\n", mike.location.x, mike.location.y + 1);
             maze[mike.location.x][mike.location.y + 1].weight = -2;
             maze[mike.location.x + 1][mike.location.y + 1].weight = -2;
             maze[mike.location.x - 1][mike.location.y + 1].weight = -2;
-            API::setWall(mike.location.x / 2, mike.location.y / 2, 'n');
+            API::setWall(x, y, 'n');
         }
         if (API::wallRight()) {
-            // fprintf(stderr, "Wall detected on the right (south) at (%d, %d).\n", mike.location.x, mike.location.y - 1);
             maze[mike.location.x][mike.location.y - 1].weight = -2;
             maze[mike.location.x + 1][mike.location.y - 1].weight = -2;
             maze[mike.location.x - 1][mike.location.y - 1].weight = -2;
-            API::setWall(mike.location.x / 2, mike.location.y / 2, 's');
+            API::setWall(x, y, 's');
         }
         if (API::wallFront()) {
-            // fprintf(stderr, "Wall detected in front (east) at (%d, %d).\n", mike.location.x + 1, mike.location.y);
             maze[mike.location.x + 1][mike.location.y].weight = -2;
             maze[mike.location.x + 1][mike.location.y + 1].weight = -2;
             maze[mike.location.x + 1][mike.location.y - 1].weight = -2;
-            API::setWall(mike.location.x / 2, mike.location.y / 2, 'e');
+            API::setWall(x, y, 'e');
         }
-    } else if (mike.direction == 'w') {
+    } else if (mike.direction == W) {
         if (API::wallLeft()) {
-            // fprintf(stderr, "Wall detected on the left (south) at (%d, %d).\n", mike.location.x, mike.location.y - 1);
             maze[mike.location.x][mike.location.y - 1].weight = -2;
             maze[mike.location.x - 1][mike.location.y - 1].weight = -2;
             maze[mike.location.x + 1][mike.location.y - 1].weight = -2;
-            API::setWall(mike.location.x / 2, mike.location.y / 2, 's');
+            API::setWall(x, y, 's');
         }
         if (API::wallRight()) {
-            // fprintf(stderr, "Wall detected on the right (north) at (%d, %d).\n", mike.location.x, mike.location.y + 1);
             maze[mike.location.x][mike.location.y + 1].weight = -2;
             maze[mike.location.x - 1][mike.location.y + 1].weight = -2;
             maze[mike.location.x + 1][mike.location.y + 1].weight = -2;
-            API::setWall(mike.location.x / 2, mike.location.y / 2, 'n');
+            API::setWall(x, y, 'n');
         }
         if (API::wallFront()) {
-            // fprintf(stderr, "Wall detected in front (west) at (%d, %d).\n", mike.location.x - 1, mike.location.y);
             maze[mike.location.x - 1][mike.location.y].weight = -2;
             maze[mike.location.x - 1][mike.location.y + 1].weight = -2;
             maze[mike.location.x - 1][mike.location.y - 1].weight = -2;
-            API::setWall(mike.location.x / 2, mike.location.y / 2, 'w');
+            API::setWall(x, y, 'w');
         }
     }
 
-    // fprintf(stderr, "Wall setting complete for direction %c.\n", mike.direction);
 }
 
-static void realturn(char direction){
-    if(mouse.direction == 'n'){
-        if(direction == 'n'){
+static void realturn(uint8_t direction){
+    if(mouse.direction == N){
+        if(direction == N){
             API::moveForward();
             mouse.location.y += 2;
         }
-        else if(direction == 'e'){
+        else if(direction == E){
             API::turnRight();
             API::moveForward();
             mouse.location.x += 2;
         }
-        else if(direction == 's'){
+        else if(direction == S){
             API::turnRight();
             API::turnRight();
             API::moveForward();
             mouse.location.y -= 2;
         }
-        else if(direction == 'w'){
+        else if(direction  == W){
             API::turnLeft();
             API::moveForward();
             mouse.location.x -= 2;
         }
     }
-    else if(mouse.direction == 'e'){
-        if(direction == 'e'){
+    else if(mouse.direction  == E){
+        if(direction  == E){
             API::moveForward();
             mouse.location.x += 2;
         }
-        else if(direction == 's'){
+        else if(direction == S){
             API::turnRight();
             API::moveForward();
             mouse.location.y -= 2;
         }
-        else if(direction == 'w'){
+        else if(direction  == W){
             API::turnRight();
             API::turnRight();
             API::moveForward();
             mouse.location.x -= 2;
         }
-        else if(direction == 'n'){
+        else if(direction  == N){
             API::turnLeft();
             API::moveForward();
             mouse.location.y += 2;
         }
     }
-    else if(mouse.direction == 's'){
-        if(direction == 's'){
+    else if(mouse.direction == S){
+        if(direction == S){
             API::moveForward();
             mouse.location.y -= 2;
         }
-        else if(direction == 'w'){
+        else if(direction  == W){
             API::turnRight();
             API::moveForward();
             mouse.location.x -= 2;
         }
-        else if(direction == 'n'){
+        else if(direction  == N){
             API::turnRight();
             API::turnRight();
             API::moveForward();
             mouse.location.y += 2;
         }
-        else if(direction == 'e'){
+        else if(direction  == E){
             API::turnLeft();
             API::moveForward();
             mouse.location.x += 2;
         }
     }
-    else if(mouse.direction == 'w'){
-        if(direction == 'w'){
+    else if(mouse.direction  == W){
+        if(direction  == W){
             API::moveForward();
             mouse.location.x -= 2;
         }
-        else if(direction == 'n'){
+        else if(direction  == N){
             API::turnRight();
             API::moveForward();
             mouse.location.y += 2;
         }
-        else if(direction == 'e'){
+        else if(direction  == E){
             API::turnRight();
             API::turnRight();
             API::moveForward();
             mouse.location.x += 2;
         }
-        else if(direction == 's'){
+        else if(direction == S){
             API::turnLeft();
             API::moveForward();
             mouse.location.y -= 2;
         }
     }
     mouse.direction = direction;
-    //fprintf(stderr,"(%d,%d) direction: %c\n",mouse.location.x,mouse.location.y,mouse.direction);
 }
 
 void set_visited(point p){
+    if(!maze[p.x][p.y].visited){
+        floodfill_expand++;
+    }
     maze[p.x][p.y].visited = true;
 }
 void floodfill() {
-    //fprintf(stderr, "Starting floodfill. Initial mouse position: (%d, %d). Destination: (%d, %d).\n", mouse.location.x, mouse.location.y, dest.x, dest.y);
-
     while (mouse.location.x != dest.x || mouse.location.y != dest.y) {
-        //fprintf(stderr, "Mouse position: (%d, %d).\n", mouse.location.x, mouse.location.y);
+        
         setwalls(mouse);
         set_visited(mouse.location);
-        // Find the minimum weight
         float max_weight = INFINITY;
         char dec_direction;
-        // fprintf(stderr,"------------ITERATION----------------\n");
+        API::setColor(mouse.location.x/2,mouse.location.y/2,'g');
         // Check north
         if (mouse.location.y < 31 && !hasnorthwall(mouse.location) && maze[mouse.location.x][mouse.location.y + 2].weight < max_weight) {
             max_weight = maze[mouse.location.x][mouse.location.y + 2].weight;
             maze[mouse.location.x][mouse.location.y + 1].visited = 1;
-            dec_direction = 'n';
-            // fprintf(stderr, "North direction has weight %.2f.\n", max_weight);
+            dec_direction = N;
         }
 
         // Check south
         if (mouse.location.y > 1 && !hassouthwall(mouse.location) && maze[mouse.location.x][mouse.location.y - 2].weight < max_weight) {
             max_weight = maze[mouse.location.x][mouse.location.y - 2].weight;
             maze[mouse.location.x][mouse.location.y - 1].visited = 1;
-            dec_direction = 's';
-            // fprintf(stderr, "South direction has weight %.2f.\n", max_weight);
+            dec_direction = S;
         }
 
         // Check east
         if (mouse.location.x < 31 && !haseastwall(mouse.location) && maze[mouse.location.x + 2][mouse.location.y].weight < max_weight) {
             max_weight = maze[mouse.location.x + 2][mouse.location.y].weight;
             maze[mouse.location.x + 1][mouse.location.y].visited = 1;
-            dec_direction = 'e';
-            // fprintf(stderr, "East direction has weight %.2f.\n", max_weight);
+            dec_direction = E;
         }
 
         // Check west
         if (mouse.location.x > 1 && !haswestwall(mouse.location) && maze[mouse.location.x - 2][mouse.location.y].weight < max_weight) {
             max_weight = maze[mouse.location.x - 2][mouse.location.y].weight;
             maze[mouse.location.x - 1][mouse.location.y].visited = 1;
-            dec_direction = 'w';
-            // fprintf(stderr, "West direction has weight %.2f.\n", max_weight);
+            dec_direction = W;
         }
-        // stall();
-        // fprintf(stderr, "Decided direction: %c with weight %.2f.\n", dec_direction, max_weight);
         if(max_weight != maze[mouse.location.x][mouse.location.y].weight - 1){
             reflood();
         }
         else{
             realturn(dec_direction);
+            floodfill_expand++;
         }
     }
-    // print_to_file();
-    //fprintf(stderr, "Floodfill complete. Mouse reached destination (%d, %d).\n", dest.x, dest.y);
 }

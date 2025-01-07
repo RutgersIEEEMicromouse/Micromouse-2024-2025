@@ -11,7 +11,7 @@ typedef struct
 
 typedef struct{
   point location;
-  char direction;
+  uint8_t direction;
 } mouse_t;
 
 typedef struct{
